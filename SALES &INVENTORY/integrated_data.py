@@ -2,12 +2,16 @@ import gspread
 from google.oauth2.service_account import Credentials
 import pandas as pd
 import numpy as np
+import os
+import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # ══════════════════════════════════════════════════════════════════════════════
 # CONFIGURATION
 # ══════════════════════════════════════════════════════════════════════════════
-JSON_FILE_PATH = r'C:\Users\Administrator\Downloads\retention-485013-974e48474123.json'
-SHEET_NAME     = 'SALES & INVENTORY DASHBOARD'
+SHEET_NAME = os.getenv('GOOGLE_SHEET_NAME', 'SALES & INVENTORY DASHBOARD')
 
 SHOP_REGIONS = {
     'Hazina':    'Nairobi CBD',
@@ -48,7 +52,11 @@ class _TimeoutAdapter(HTTPAdapter):
 
 def get_client():
     try:
-        creds = Credentials.from_service_account_file(JSON_FILE_PATH, scopes=SCOPES)
+        creds_json = os.getenv('GOOGLE_CREDENTIALS_JSON')
+        if not creds_json:
+            raise ValueError("GOOGLE_CREDENTIALS_JSON environment variable is not set")
+        creds_dict = json.loads(creds_json)
+        creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
         client = gspread.authorize(creds)
         adapter = _TimeoutAdapter()
         client.http_client.session.mount('https://', adapter)
