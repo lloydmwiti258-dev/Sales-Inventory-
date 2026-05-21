@@ -1,0 +1,392 @@
+{
+  "insights": [
+    {
+      "direction": "positive",
+      "r": 0.988,
+      "r2": 0.976,
+      "strength": "very strong",
+      "var_a": "Monthly sales target",
+      "var_b": "Deficit"
+    },
+    {
+      "direction": "positive",
+      "r": 0.971,
+      "r2": 0.942,
+      "strength": "very strong",
+      "var_a": "Total Sales",
+      "var_b": "Actual sales"
+    },
+    {
+      "direction": "positive",
+      "r": 0.903,
+      "r2": 0.815,
+      "strength": "very strong",
+      "var_a": "Monthly sales target",
+      "var_b": "Actual sales"
+    },
+    {
+      "direction": "positive",
+      "r": 0.87,
+      "r2": 0.758,
+      "strength": "strong",
+      "var_a": "Total Sales",
+      "var_b": "Monthly sales target"
+    },
+    {
+      "direction": "positive",
+      "r": 0.863,
+      "r2": 0.745,
+      "strength": "strong",
+      "var_a": "Total Stock",
+      "var_b": "Total Warehouse Stock"
+    },
+    {
+      "direction": "positive",
+      "r": 0.861,
+      "r2": 0.741,
+      "strength": "strong",
+      "var_a": "Bags issued for stitching",
+      "var_b": "Bags stitched"
+    },
+    {
+      "direction": "positive",
+      "r": 0.849,
+      "r2": 0.721,
+      "strength": "strong",
+      "var_a": "Total Stock",
+      "var_b": "Monthly sales target"
+    },
+    {
+      "direction": "positive",
+      "r": 0.837,
+      "r2": 0.7,
+      "strength": "strong",
+      "var_a": "Total Dispatch",
+      "var_b": "Actual sales"
+    },
+    {
+      "direction": "positive",
+      "r": 0.834,
+      "r2": 0.695,
+      "strength": "strong",
+      "var_a": "Total Dispatch",
+      "var_b": "Monthly sales target"
+    },
+    {
+      "direction": "positive",
+      "r": 0.832,
+      "r2": 0.693,
+      "strength": "strong",
+      "var_a": "Total Sales",
+      "var_b": "Total Dispatch"
+    },
+    {
+      "direction": "positive",
+      "r": 0.831,
+      "r2": 0.69,
+      "strength": "strong",
+      "var_a": "Total Warehouse Stock",
+      "var_b": "Monthly sales target"
+    },
+    {
+      "direction": "positive",
+      "r": 0.826,
+      "r2": 0.682,
+      "strength": "strong",
+      "var_a": "Actual sales",
+      "var_b": "Deficit"
+    },
+    {
+      "direction": "positive",
+      "r": 0.822,
+      "r2": 0.675,
+      "strength": "strong",
+      "var_a": "Total Stock",
+      "var_b": "Deficit"
+    },
+    {
+      "direction": "positive",
+      "r": 0.816,
+      "r2": 0.665,
+      "strength": "strong",
+      "var_a": "Total Sales",
+      "var_b": "Total Stock"
+    },
+    {
+      "direction": "positive",
+      "r": 0.816,
+      "r2": 0.666,
+      "strength": "strong",
+      "var_a": "Total Stock",
+      "var_b": "Actual sales"
+    },
+    {
+      "direction": "positive",
+      "r": 0.814,
+      "r2": 0.662,
+      "strength": "strong",
+      "var_a": "Total Warehouse Stock",
+      "var_b": "Deficit"
+    },
+    {
+      "direction": "positive",
+      "r": 0.794,
+      "r2": 0.631,
+      "strength": "strong",
+      "var_a": "Total Sales",
+      "var_b": "Deficit"
+    },
+    {
+      "direction": "positive",
+      "r": 0.794,
+      "r2": 0.63,
+      "strength": "strong",
+      "var_a": "Total Dispatch",
+      "var_b": "Deficit"
+    },
+    {
+      "direction": "positive",
+      "r": 0.785,
+      "r2": 0.616,
+      "strength": "strong",
+      "var_a": "Total Warehouse Stock",
+      "var_b": "Total Dispatch"
+    },
+    {
+      "direction": "positive",
+      "r": 0.773,
+      "r2": 0.598,
+      "strength": "strong",
+      "var_a": "Total Stock",
+      "var_b": "Total Dispatch"
+    },
+    {
+      "direction": "positive",
+      "r": 0.769,
+      "r2": 0.591,
+      "strength": "strong",
+      "var_a": "Total Warehouse Stock",
+      "var_b": "Actual sales"
+    },
+    {
+      "direction": "positive",
+      "r": 0.766,
+      "r2": 0.587,
+      "strength": "strong",
+      "var_a": "Total Sales",
+      "var_b": "Total Warehouse Stock"
+    },
+    {
+      "direction": "positive",
+      "r": 0.739,
+      "r2": 0.546,
+      "strength": "strong",
+      "var_a": "Stitching WIP",
+      "var_b": "Bags issued for stitching"
+    },
+    {
+      "direction": "positive",
+      "r": 0.582,
+      "r2": 0.338,
+      "strength": "moderate",
+      "var_a": "Total Dispatch",
+      "var_b": "Bags stitched"
+    },
+    {
+      "direction": "positive",
+      "r": 0.567,
+      "r2": 0.322,
+      "strength": "moderate",
+      "var_a": "Stitching WIP",
+      "var_b": "Bags stitched"
+    }
+  ],
+  "labels": [
+    "Total Sales",
+    "Total Stock",
+    "Total Warehouse Stock",
+    "Total Dispatch",
+    "Total Marketing",
+    "Bags in cut store",
+    "Stitching WIP",
+    "Bags issued for stitching",
+    "Bags stitched",
+    "Monthly sales target",
+    "Actual sales",
+    "Deficit"
+  ],
+  "matrix": [
+    [
+      1.0,
+      0.816,
+      0.766,
+      0.832,
+      0.273,
+      -0.068,
+      0.278,
+      0.319,
+      0.451,
+      0.87,
+      0.971,
+      0.794
+    ],
+    [
+      0.816,
+      1.0,
+      0.863,
+      0.773,
+      0.36,
+      -0.098,
+      0.223,
+      0.362,
+      0.467,
+      0.849,
+      0.816,
+      0.822
+    ],
+    [
+      0.766,
+      0.863,
+      1.0,
+      0.785,
+      0.243,
+      -0.093,
+      0.117,
+      0.341,
+      0.494,
+      0.831,
+      0.769,
+      0.814
+    ],
+    [
+      0.832,
+      0.773,
+      0.785,
+      1.0,
+      0.35,
+      -0.027,
+      0.32,
+      0.422,
+      0.582,
+      0.834,
+      0.837,
+      0.794
+    ],
+    [
+      0.273,
+      0.36,
+      0.243,
+      0.35,
+      1.0,
+      0.077,
+      0.257,
+      0.254,
+      0.224,
+      0.282,
+      0.259,
+      0.277
+    ],
+    [
+      -0.068,
+      -0.098,
+      -0.093,
+      -0.027,
+      0.077,
+      1.0,
+      0.037,
+      -0.006,
+      -0.03,
+      -0.088,
+      -0.079,
+      -0.087
+    ],
+    [
+      0.278,
+      0.223,
+      0.117,
+      0.32,
+      0.257,
+      0.037,
+      1.0,
+      0.739,
+      0.567,
+      0.201,
+      0.281,
+      0.163
+    ],
+    [
+      0.319,
+      0.362,
+      0.341,
+      0.422,
+      0.254,
+      -0.006,
+      0.739,
+      1.0,
+      0.861,
+      0.313,
+      0.315,
+      0.298
+    ],
+    [
+      0.451,
+      0.467,
+      0.494,
+      0.582,
+      0.224,
+      -0.03,
+      0.567,
+      0.861,
+      1.0,
+      0.432,
+      0.446,
+      0.407
+    ],
+    [
+      0.87,
+      0.849,
+      0.831,
+      0.834,
+      0.282,
+      -0.088,
+      0.201,
+      0.313,
+      0.432,
+      1.0,
+      0.903,
+      0.988
+    ],
+    [
+      0.971,
+      0.816,
+      0.769,
+      0.837,
+      0.259,
+      -0.079,
+      0.281,
+      0.315,
+      0.446,
+      0.903,
+      1.0,
+      0.826
+    ],
+    [
+      0.794,
+      0.822,
+      0.814,
+      0.794,
+      0.277,
+      -0.087,
+      0.163,
+      0.298,
+      0.407,
+      0.988,
+      0.826,
+      1.0
+    ]
+  ],
+  "n_moderate": 2,
+  "n_observations": 152,
+  "n_strong": 23,
+  "n_variables": 12
+}
