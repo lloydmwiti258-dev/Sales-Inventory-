@@ -1,0 +1,2972 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Denri Africa | Integrated Operations Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --bg-alt: #1e293b;
+            --accent: #38bdf8;
+            --accent-secondary: #818cf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        header {
+            padding: 14px 40px 12px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-brand {
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            background: linear-gradient(to right, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+        }
+
+        .header-title {
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-top: 2px;
+            margin-bottom: 10px;
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-section h1 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-section p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .dashboard-title {
+            text-align: center;
+            font-size: 1.6rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            padding: 18px 0 6px;
+            background: linear-gradient(to right, var(--accent), var(--accent-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .filters {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-item select {
+            background: var(--bg-alt);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .btn-refresh {
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            color: var(--bg);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        main {
+            padding: 30px 40px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        /* KPI Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .kpi-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kpi-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--card-color, var(--accent));
+        }
+
+        .kpi-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .kpi-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .kpi-trend {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--glass-border);
+            padding-bottom: 10px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -11px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .chart-container {
+            height: 300px;
+            width: 100%;
+        }
+
+        /* Table Improvements */
+        .table-container {
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--glass-border);
+            cursor: pointer;
+        }
+
+        th:hover {
+            color: var(--accent);
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .page-btn {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            padding: 5px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .search-box input {
+            background: var(--bg-alt);
+            border: 1px solid var(--glass-border);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 8px;
+            width: 200px;
+            font-size: 0.8rem;
+            outline: none;
+        }
+
+        /* Insights */
+        .insight-card {
+            display: flex;
+            gap: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            background: rgba(255, 255, 255, 0.02);
+            border-left: 4px solid var(--accent);
+        }
+
+        .insight-card.danger {
+            border-left-color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        .insight-card.warning {
+            border-left-color: var(--warning);
+            background: rgba(245, 158, 11, 0.05);
+        }
+
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(56, 189, 248, 0.1);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── Correlation Matrix ──────────────────────────────── */
+        .var-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass);
+            cursor: pointer;
+            font-size: 0.78rem;
+            transition: all 0.15s;
+            user-select: none;
+        }
+
+        .var-pill.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .var-pill:hover {
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+
+        .corr-cell {
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            width: 50px;
+            height: 42px;
+            font-size: 0.68rem;
+            vertical-align: middle;
+        }
+
+        .corr-row-label {
+            padding: 4px 10px;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .corr-col-hdr {
+            writing-mode: vertical-lr;
+            transform: rotate(180deg);
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            padding: 6px 3px;
+            max-height: 95px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            vertical-align: bottom;
+        }
+
+        /* ── Correlation chart controls ── */
+        .ctype-btn {
+            padding: 4px 11px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass);
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.72rem;
+            font-weight: 600;
+            transition: all 0.15s;
+        }
+
+        .ctype-btn.active {
+            background: rgba(56, 189, 248, 0.18);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .ctype-btn:hover:not(.active) {
+            border-color: rgba(255, 255, 255, 0.2);
+            color: var(--text);
+        }
+
+        .corr-stat {
+            margin-top: 10px;
+            padding: 9px 14px;
+            background: rgba(255, 255, 255, 0.025);
+            border-radius: 8px;
+            font-size: 0.71rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            border-left: 2px solid var(--glass-border);
+        }
+
+        .corr-stat strong {
+            color: var(--text);
+        }
+
+        .corr-cat-row:hover { background: rgba(56,189,248,0.07); }
+        .corr-cat-row td:first-child { color: var(--text); }
+        .corr-bt-row td { background: rgba(255,255,255,0.015); font-size: 0.78rem; color: var(--text-muted); }
+        .corr-bt-row td:first-child { border-left: 2px solid var(--glass-border); }
+
+        .corr-ctl {
+            background: var(--bg-alt);
+            color: var(--text);
+            border: 1px solid var(--glass-border);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            outline: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top:20px;color:var(--accent);">Syncing Denri Operations...</p>
+    </div>
+
+    <header>
+        <div style="text-align:center;margin-bottom:6px;">
+            <div class="header-brand">DENRI AFRICA</div>
+            <div class="header-title">Integrated Sales &amp; Inventory Dashboard</div>
+        </div>
+        <div class="header-row">
+            <div class="filters" style="width:100%;justify-content:center;">
+                <div class="filter-item"><select id="catFilter" onchange="loadDashboard()">
+                        <option value="All">Categories</option>
+                    </select></div>
+                <div class="filter-item"><select id="btFilter" onchange="loadDashboard()">
+                        <option value="All">Bag Types</option>
+                    </select></div>
+                <div class="filter-item"><select id="prodFilter" onchange="loadDashboard()">
+                        <option value="All">Products</option>
+                    </select></div>
+                <div class="filter-item"><select id="colorFilter" onchange="loadDashboard()">
+                        <option value="All">Colors</option>
+                    </select></div>
+                <div class="filter-item"><select id="regionFilter" onchange="filterShops()">
+                        <option value="All">All Regions</option>
+                    </select></div>
+                <div class="filter-item"><select id="shopFilter" onchange="filterShops()">
+                        <option value="All">All Shops</option>
+                    </select></div>
+                <button class="btn-refresh" onclick="refreshData()">Sync</button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Sales & Stock -->
+        <div
+            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            Sales & Inventory</div>
+        <div class="kpi-grid" style="margin-bottom:16px;">
+            <div class="kpi-card" style="--card-color:var(--accent)">
+                <div class="kpi-label">Weekly Sales</div>
+                <div class="kpi-value" id="kTotalSales">0</div>
+                <div class="kpi-trend" id="kTargetAch">0% of Target</div>
+            </div>
+            <div class="kpi-card" style="--card-color:var(--success)">
+                <div class="kpi-label">Total Shop Stock</div>
+                <div class="kpi-value" id="kTotalStock">0</div>
+                <div class="kpi-trend">Starmall → Rongai</div>
+            </div>
+            <div class="kpi-card" style="--card-color:#06b6d4">
+                <div class="kpi-label">Total Warehouse Store</div>
+                <div class="kpi-value" id="kWhStock">0</div>
+                <div class="kpi-trend">Store: <span id="kWhStore">0</span> &nbsp;|&nbsp; KTDA: <span id="kKtdaMain">0</span></div>
+            </div>
+            <div class="kpi-card" style="--card-color:var(--warning)">
+                <div class="kpi-label">Total Dispatch</div>
+                <div class="kpi-value" id="kTotalDispatch">0</div>
+                <div class="kpi-trend">Units sent to shops</div>
+            </div>
+            <div class="kpi-card" style="--card-color:#e879f9">
+                <div class="kpi-label">New Products Weekly Sales</div>
+                <div class="kpi-value" id="kNewProdSales">0</div>
+                <div class="kpi-trend" id="kNewProdTop" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
+            </div>
+        </div>
+
+        <!-- Production -->
+        <div
+            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            Production</div>
+        <div class="kpi-grid" style="margin-bottom:16px;">
+            <div class="kpi-card" style="--card-color:var(--accent-secondary)">
+                <div class="kpi-label">Cut in Store</div>
+                <div class="kpi-value" id="kCutStore">0</div>
+                <div class="kpi-trend">Ready for stitching</div>
+            </div>
+            <div class="kpi-card" style="--card-color:#8b5cf6">
+                <div class="kpi-label">Stitching WIP</div>
+                <div class="kpi-value" id="kStitchWip">0</div>
+                <div class="kpi-trend">In progress</div>
+            </div>
+            <div class="kpi-card" style="--card-color:#ec4899">
+                <div class="kpi-label">Weekly Issued</div>
+                <div class="kpi-value" id="kWeeklyIssued">0</div>
+                <div class="kpi-trend">Issued this week</div>
+            </div>
+            <div class="kpi-card" style="--card-color:#10b981">
+                <div class="kpi-label">Weekly Stitched</div>
+                <div class="kpi-value" id="kWeeklyStitched">0</div>
+                <div class="kpi-trend">Warehouse col H</div>
+            </div>
+            <div class="kpi-card" style="--card-color:#34d399">
+                <div class="kpi-label">Weekly Finished</div>
+                <div class="kpi-value" id="kWeeklyFinished">0</div>
+                <div class="kpi-trend">Warehouse col I</div>
+            </div>
+            <div class="kpi-card" style="--card-color:#f59e0b">
+                <div class="kpi-label">Finishing WIP</div>
+                <div class="kpi-value" id="kFinishingWip">0</div>
+                <div class="kpi-trend">Warehouse col G</div>
+            </div>
+        </div>
+
+        <!-- Marketing Posts -->
+        <div
+            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            Marketing Posts</div>
+        <div class="kpi-grid" style="margin-bottom:16px;">
+            <div class="kpi-card" style="--card-color:#06b6d4">
+                <div class="kpi-label">Kenya Posts</div>
+                <div class="kpi-value" id="kMktKenya">0</div>
+                <div class="kpi-trend">Marketing col F</div>
+            </div>
+            <div class="kpi-card" style="--card-color:#a78bfa">
+                <div class="kpi-label">Sinza Posts</div>
+                <div class="kpi-value" id="kMktSinza">0</div>
+                <div class="kpi-trend">Marketing col G</div>
+            </div>
+            <div class="kpi-card" style="--card-color:#fb923c">
+                <div class="kpi-label">Uganda Posts</div>
+                <div class="kpi-value" id="kMktUganda">0</div>
+                <div class="kpi-trend">Marketing col H</div>
+            </div>
+        </div>
+
+        <!-- Monthly Target -->
+        <div
+            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            Monthly Target Analytics</div>
+        <div class="kpi-grid" style="margin-bottom:40px;">
+            <div class="kpi-card" style="--card-color:var(--text-muted)">
+                <div class="kpi-label">Monthly Target</div>
+                <div class="kpi-value" id="kTargetSales">0</div>
+                <div class="kpi-trend">Set target</div>
+            </div>
+            <div class="kpi-card" style="--card-color:var(--success)">
+                <div class="kpi-label">Monthly Sales</div>
+                <div class="kpi-value" id="kActualSales">0</div>
+                <div class="kpi-trend" id="kAchPct">0% achieved</div>
+            </div>
+            <div class="kpi-card" style="--card-color:var(--danger)">
+                <div class="kpi-label">Remaining Deficit</div>
+                <div class="kpi-value" id="kTotalDeficit">0</div>
+                <div class="kpi-trend">Still to achieve</div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('master', this)">Master Registry</button>
+            <button class="tab-btn" onclick="switchTab('shops', this)">Shop Performance</button>
+            <button class="tab-btn" onclick="switchTab('stitched', this)">Bags Stitched Summary</button>
+            <button class="tab-btn" onclick="switchTab('newproducts', this)">New Products</button>
+            <button class="tab-btn" onclick="switchTab('correlations', this)">Correlations</button>
+            <button class="tab-btn" onclick="switchTab('corrmatrix', this)">Correlation Matrix</button>
+            <button class="tab-btn" onclick="switchTab('revenue', this)">Revenue Breakdown</button>
+            <button class="tab-btn" onclick="switchTab('insights', this)">Insights</button>
+        </div>
+
+        <div id="section-master" class="section active">
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Comprehensive Product Registry</div>
+                    <div style="display:flex;gap:15px;">
+                        <div class="search-box"><input type="text" placeholder="Search products..."
+                                onkeyup="handleSearch(this.value)"></div>
+                        <button class="page-btn" onclick="exportExcel()">Excel Export</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="tblMaster">
+                        <thead>
+                            <tr>
+                                <th onclick="sortData('Category')">Category ↕</th>
+                                <th onclick="sortData('Color')">Color ↕</th>
+                                <th onclick="sortData('Bag Type')">Bag Type ↕</th>
+                                <th onclick="sortData('Total Sales')">Sales ↕</th>
+                                <th onclick="sortData('Total Stock')">Stock ↕</th>
+                                <th onclick="sortData('Total Warehouse Stock')">Warehouse ↕</th>
+                                <th onclick="sortData('Total Dispatch')">Dispatch ↕</th>
+                                <th onclick="sortData('Bags stitched')">Production ↕</th>
+                                <th onclick="sortData('Total Marketing')">Marketing ↕</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyMaster"></tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+
+        <!-- SHOP PERFORMANCE TAB -->
+        <div id="section-shops" class="section">
+            <div class="grid-2" style="margin-bottom:24px;" id="regionCards"></div>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Sales by Shop</div>
+                    </div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartShopSales"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Stock by Shop</div>
+                    </div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartShopStocks"></canvas></div>
+                </div>
+            </div>
+            <div class="card" style="margin-top:24px;">
+                <div class="card-header">
+                    <div class="card-title">Shop Performance Table</div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th onclick="sortShops('shop')">Shop ↕</th>
+                                <th onclick="sortShops('region')">Region ↕</th>
+                                <th onclick="sortShops('sales')">Sales ↕</th>
+                                <th onclick="sortShops('stocks')">Stocks ↕</th>
+                                <th>Stock Coverage</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyShops"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- BAGS STITCHED SUMMARY TAB -->
+        <div id="section-stitched" class="section">
+            <!-- KPI strip -->
+            <div class="kpi-grid" id="stitchedKpis" style="margin-bottom:24px;"></div>
+
+            <!-- Charts row -->
+            <div class="grid-2" style="margin-bottom:24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Bags Stitched by Complexity</div>
+                        <div style="display:flex;gap:4px;">
+                            <button class="ctype-btn active" id="stChartBtn1" onclick="setStitchedChart('bar',this)">Bar</button>
+                            <button class="ctype-btn" id="stChartBtn2" onclick="setStitchedChart('doughnut',this)">Donut</button>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartStitchedComplexity"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Bags Stitched by Category</div>
+                    </div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartStitchedCategory"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Detail table -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Complexity Breakdown Table</div>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <div class="search-box">
+                            <input type="text" id="stitchedSearch" placeholder="Search category / bag type..."
+                                oninput="filterStitchedTable(this.value)" style="width:220px;">
+                        </div>
+                        <button class="page-btn" onclick="exportStitchedExcel()">Excel Export</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Complexity / Category / Bag Type</th>
+                                <th style="text-align:right;">Bags Stitched</th>
+                                <th style="text-align:right;">% of Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyStitched"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW PRODUCTS TAB -->
+        <div id="section-newproducts" class="section">
+
+            <!-- Champion Cards -->
+            <div class="kpi-grid" style="margin-bottom:24px;" id="npChampions"></div>
+
+            <!-- Pipeline summary bar -->
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header">
+                    <div class="card-title">New Products — Stock Pipeline Overview</div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);">Total units at each production stage</div>
+                </div>
+                <div class="chart-container" style="height:120px;"><canvas id="chartNpPipeline"></canvas></div>
+            </div>
+
+            <!-- Per-product pipeline + chart -->
+            <div class="grid-2" style="margin-bottom:24px;">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Weekly Sales by New Product</div></div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartNpSales"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Shop Distribution — New Products</div></div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartNpShops"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Product pipeline table -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Product-by-Product Pipeline Alignment</div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <div class="search-box"><input type="text" id="npSearch" placeholder="Search product..." oninput="filterNpTable(this.value)" style="width:200px;"></div>
+                        <button class="page-btn" onclick="exportNpExcel()">Excel Export</button>
+                    </div>
+                </div>
+                <!-- Column toggles -->
+                <div id="npColToggles" style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 20px 12px;border-bottom:1px solid var(--glass-border);"></div>
+                <div class="table-container">
+                    <table id="tblNp">
+                        <thead id="npThead"></thead>
+                        <tbody id="tbodyNp"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sales vs Shop Stock Alignment -->
+            <div class="card" style="margin-top:24px;">
+                <div class="card-header">
+                    <div class="card-title">Sales vs Shop Stock Alignment</div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <button class="ctype-btn active" id="svsBtn1" onclick="setSvsView('chart',this)">Chart</button>
+                        <button class="ctype-btn" id="svsBtn2" onclick="setSvsView('table',this)">Table</button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div style="display:flex;gap:10px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--glass-border);">
+                    <select id="svsFilterCat"  class="corr-ctl" onchange="renderSvs()" style="min-width:130px;">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="svsFilterBt"   class="corr-ctl" onchange="renderSvs()" style="min-width:140px;">
+                        <option value="">All Bag Types</option>
+                    </select>
+                    <select id="svsFilterColor" class="corr-ctl" onchange="renderSvs()" style="min-width:130px;">
+                        <option value="">All Colors</option>
+                    </select>
+                    <select id="svsFilterShop" class="corr-ctl" onchange="renderSvs()" style="min-width:120px;">
+                        <option value="">All Shops</option>
+                    </select>
+                </div>
+
+                <!-- Chart view -->
+                <div id="svsChartWrap" style="padding:16px 20px;">
+                    <div class="chart-container" style="height:360px;"><canvas id="chartSvs"></canvas></div>
+                </div>
+
+                <!-- Table view -->
+                <div id="svsTableWrap" style="display:none;">
+                    <div style="overflow-x:auto;">
+                        <table id="tblSvs" style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+                            <thead id="svsThead"></thead>
+                            <tbody id="svsTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div style="display:flex;gap:18px;padding:10px 20px 14px;font-size:0.72rem;color:var(--text-muted);">
+                    <span><span style="display:inline-block;width:10px;height:10px;background:#38bdf8;border-radius:2px;margin-right:4px;"></span>Sales</span>
+                    <span><span style="display:inline-block;width:10px;height:10px;background:#10b981;border-radius:2px;margin-right:4px;"></span>Shop Stock</span>
+                    <span style="margin-left:auto;font-style:italic;">Stock shown as separate row in table. Filter by product/color/shop for detail.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- CORRELATIONS TAB -->
+        <div id="section-correlations" class="section">
+            <!-- Global controls -->
+            <div class="card" style="margin-bottom:20px;padding:14px 22px;">
+                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                    <span style="font-size:0.78rem;color:var(--text-muted);font-weight:600;">Show top</span>
+                    <select class="corr-ctl" id="corrTopN" onchange="renderCharts()">
+                        <option value="5">5</option>
+                        <option value="8">8</option>
+                        <option value="12" selected>12</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                    </select>
+                    <span style="font-size:0.78rem;color:var(--text-muted);font-weight:600;">sorted by</span>
+                    <select class="corr-ctl" id="corrSortBy" onchange="renderCharts()">
+                        <option value="Total Sales">Sales</option>
+                        <option value="Total Stock">Stock</option>
+                        <option value="Total Warehouse Stock">Warehouse</option>
+                        <option value="Total Dispatch">Dispatch</option>
+                        <option value="Bags stitched">Stitched</option>
+                        <option value="Stitching WIP">Stitching WIP</option>
+                        <option value="Total Marketing">Marketing</option>
+                        <option value="Monthly sales target">Target</option>
+                        <option value="Actual sales">Actual Sales</option>
+                        <option value="Deficit">Deficit</option>
+                    </select>
+                    <span style="font-size:0.78rem;color:var(--text-muted);">↓ descending &nbsp;·&nbsp; Click chart-type
+                        buttons to switch views</span>
+                </div>
+            </div>
+
+            <!-- Category summary table -->
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header">
+                    <div class="card-title">Category Activity Summary</div>
+                    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+                        <div class="search-box">
+                            <input type="text" id="corrSummarySearch" placeholder="Search category..."
+                                oninput="filterCorrSummary(this.value)" style="width:160px;">
+                        </div>
+                        <button class="page-btn" onclick="exportCorrSummaryExcel()">Excel Export</button>
+                    </div>
+                </div>
+                <!-- Column toggle pills -->
+                <div id="corrColToggles" style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 20px 4px;border-bottom:1px solid var(--glass-border);"></div>
+                <div class="table-container">
+                    <table id="tblCorrSummary">
+                        <thead><tr id="corrSummaryHead"></tr></thead>
+                        <tbody id="tbodyCorrSummary"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">1 — Sales, Stocks, Warehouse & Production</div>
+                        <div style="display:flex;gap:4px;">
+                            <button class="ctype-btn active" data-chart="1"
+                                onclick="setCorrType(1,'bar',this)">Bar</button>
+                            <button class="ctype-btn" data-chart="1" onclick="setCorrType(1,'line',this)">Area</button>
+                            <button class="ctype-btn" data-chart="1"
+                                onclick="setCorrType(1,'radar',this)">Radar</button>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:420px;"><canvas id="chartCorr1"></canvas></div>
+                    <div id="corrStat1" class="corr-stat"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">2 — Sales, Dispatch & Stitching</div>
+                        <div style="display:flex;gap:4px;">
+                            <button class="ctype-btn active" data-chart="2"
+                                onclick="setCorrType(2,'bar',this)">Bar</button>
+                            <button class="ctype-btn" data-chart="2" onclick="setCorrType(2,'line',this)">Area</button>
+                            <button class="ctype-btn" data-chart="2"
+                                onclick="setCorrType(2,'stacked',this)">Stacked</button>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:420px;"><canvas id="chartCorr2"></canvas></div>
+                    <div id="corrStat2" class="corr-stat"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">3 — Sales, Marketing & Stocks</div>
+                        <div style="display:flex;gap:4px;">
+                            <button class="ctype-btn active" data-chart="3"
+                                onclick="setCorrType(3,'bar',this)">Bar</button>
+                            <button class="ctype-btn" data-chart="3"
+                                onclick="setCorrType(3,'bubble',this)">Bubble</button>
+                            <button class="ctype-btn" data-chart="3" onclick="setCorrType(3,'line',this)">Area</button>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:420px;"><canvas id="chartCorr3"></canvas></div>
+                    <div id="corrStat3" class="corr-stat"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">4 — Monthly Target vs Sales vs Deficit</div>
+                        <div style="display:flex;gap:4px;">
+                            <button class="ctype-btn active" data-chart="4"
+                                onclick="setCorrType(4,'bar',this)">Bar</button>
+                            <button class="ctype-btn" data-chart="4" onclick="setCorrType(4,'hbar',this)">H-Bar</button>
+                            <button class="ctype-btn" data-chart="4"
+                                onclick="setCorrType(4,'doughnut',this)">Donut</button>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:420px;"><canvas id="chartCorr4"></canvas></div>
+                    <div id="corrStat4" class="corr-stat"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CORRELATION MATRIX TAB -->
+        <div id="section-corrmatrix" class="section">
+            <div id="cmLoader" style="text-align:center;padding:60px;">
+                <div class="spinner" style="margin:0 auto 16px;"></div>
+                <p style="color:var(--accent);">Computing correlation matrix…</p>
+            </div>
+            <div id="cmContent" style="display:none;">
+                <!-- Summary strip -->
+                <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;" id="cmStats"></div>
+
+                <!-- Variable selector -->
+                <div class="card" style="margin-bottom:24px;">
+                    <div class="card-header">
+                        <div class="card-title">Filter Variables</div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="page-btn" onclick="selectAllCorrVars(true)">All</button>
+                            <button class="page-btn" onclick="selectAllCorrVars(false)">Reset</button>
+                        </div>
+                    </div>
+                    <div id="varPills" style="display:flex;flex-wrap:wrap;gap:8px;padding-top:12px;"></div>
+                </div>
+
+                <!-- Heatmap + Insights -->
+                <div class="grid-2" style="margin-bottom:24px;">
+                    <div class="card" style="overflow:hidden;">
+                        <div class="card-header">
+                            <div class="card-title">Correlation Heatmap</div>
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:0.72rem;color:var(--text-muted);">
+                            <span style="color:var(--danger);">−1 Negative</span>
+                            <div
+                                style="flex:1;height:7px;border-radius:4px;background:linear-gradient(to right,#ef4444,#1e293b 50%,#10b981);">
+                            </div>
+                            <span style="color:var(--success);">Positive +1</span>
+                        </div>
+                        <div style="overflow-x:auto;" id="heatmapWrap"></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Strongest Correlations</div>
+                            <div style="font-size:0.7rem;color:var(--text-muted);">|r| ≥ 0.50 — sorted by strength</div>
+                        </div>
+                        <div id="cmInsights" style="max-height:460px;overflow-y:auto;padding-right:2px;"></div>
+                    </div>
+                </div>
+
+                <!-- Full numeric table -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Full Correlation Matrix</div>
+                        <div style="font-size:0.72rem;color:var(--text-muted);">
+                            <span style="color:var(--success);font-weight:700;">■</span> positive &nbsp;
+                            <span style="color:var(--danger);font-weight:700;">■</span> negative &nbsp;
+                            Bold = |r| ≥ 0.70 (strong)
+                        </div>
+                    </div>
+                    <div class="table-container" id="cmTable"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── REVENUE BREAKDOWN TAB ── -->
+        <div id="section-revenue" class="section">
+            <!-- KPI strip -->
+            <div class="kpi-grid" id="revKpis" style="margin-bottom:24px;"></div>
+
+            <!-- Charts row -->
+            <div class="grid-2" style="margin-bottom:24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Revenue by Bag Type</div>
+                        <div style="display:flex;gap:4px;">
+                            <button class="ctype-btn active" id="revChartBtn1" onclick="setRevChart('bar',this)">Bar</button>
+                            <button class="ctype-btn" id="revChartBtn2" onclick="setRevChart('doughnut',this)">Donut</button>
+                            <button class="ctype-btn" id="revChartBtn3" onclick="setRevChart('line',this)">Area</button>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartRevCat"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Revenue by Shop</div>
+                    </div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartRevStockSales"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Breakdown table -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title" id="revTableTitle">Revenue Breakdown — All Shops</div>
+                    <div style="display:flex;gap:10px;align-items:center;">
+                        <div class="search-box">
+                            <input type="text" id="revSearch" placeholder="Search bag type..."
+                                oninput="filterRevTable(this.value)" style="width:200px;">
+                        </div>
+                        <button class="page-btn" onclick="exportRevExcel()">Excel Export</button>
+                    </div>
+                </div>
+                <!-- Shop filter pills -->
+                <div style="padding:10px 18px 4px;border-bottom:1px solid var(--glass-border);">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                        <span style="font-size:0.72rem;color:var(--text-muted);font-weight:600;white-space:nowrap;">Filter shops:</span>
+                        <button class="ctype-btn active" id="revShopAll" onclick="revSelectAllShops()"
+                            style="font-size:0.7rem;">All</button>
+                        <div id="revShopPills" style="display:flex;flex-wrap:wrap;gap:5px;"></div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Category / Bag Type</th><th>Total Revenue</th></tr></thead>
+                        <tbody id="tbodyRev"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="section-insights" class="section">
+            <!-- Row 1: Alerts + Target -->
+            <div class="grid-2" style="margin-bottom:24px;">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Intelligent Alerts</div></div>
+                    <div id="insightsList" style="padding:4px 0;"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Monthly Target Progress</div></div>
+                    <div id="insightTarget" style="padding:4px 0;"></div>
+                </div>
+            </div>
+            <!-- Row 2: Stock + Dispatch -->
+            <div class="grid-2" style="margin-bottom:24px;">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Sales vs Stock Alignment</div></div>
+                    <div id="insightStock" style="padding:4px 0;"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Sales, Dispatch &amp; Stitching</div></div>
+                    <div id="insightDispatch" style="padding:4px 0;"></div>
+                </div>
+            </div>
+            <!-- Row 3: Cash Cows + Weekly -->
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Cash Cows — Revenue vs Sales</div></div>
+                    <div id="insightCashCows" style="padding:4px 0;"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Weekly Operational Alignment</div></div>
+                    <div id="insightWeekly" style="padding:4px 0;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let fullData = [], filteredData = [], correlations = {};
+        let allShopData = [], filteredShopData = [];
+        let revenueData = [];
+        let stitchedData = [];
+        let shopSortCol = 'sales', shopSortAsc = false;
+        let currentPage = 1, rowsPerPage = 15, sortCol = '', sortAsc = true;
+        let charts = {};
+        let corrMatrixData = null, selectedVars = [];
+        let newProductsSummary = {}, newProductsData = [], npShopDetail = [];
+        let _npSortCol = 'total_sales', _npSortAsc = false, _npFilter = '';
+        let _svsView = 'chart';
+
+        async function loadDashboard() {
+            try {
+                const filters = {
+                    category: document.getElementById('catFilter').value,
+                    bagtype: document.getElementById('btFilter').value,
+                    product: document.getElementById('prodFilter').value,
+                    color: document.getElementById('colorFilter').value
+                };
+                const res = await fetch(`/api/integrated-dashboard?${new URLSearchParams(filters)}`);
+                const data = await res.json();
+
+                if (!res.ok || data.error) { showDashError(data.error || `Server error ${res.status}`); return; }
+
+                fullData = data.master_data || [];
+                filteredData = [...fullData];
+                correlations = data.correlations || {};
+                allShopData = data.shop_analysis || [];
+                filteredShopData = [...allShopData];
+                revenueData = data.revenue_data || [];
+                stitchedData = data.stitched_data || [];
+                newProductsSummary = data.new_products_summary || {};
+                newProductsData    = data.new_products_data || [];
+                npShopDetail       = data.new_products_shop_detail || [];
+
+                updateKPIs(data.summary);
+                updateFilters(data.filters);
+                renderTable();
+                renderCharts();
+                renderShopSection();
+                loadInsights();
+                document.getElementById('loader').style.display = 'none';
+            } catch (e) {
+                showDashError('Network or parse error: ' + e.message);
+            }
+        }
+
+        function showDashError(msg) {
+            const loader = document.getElementById('loader');
+            loader.innerHTML = `
+        <div style="text-align:center;padding:40px;">
+            <div style="color:var(--danger);font-size:1.4rem;font-weight:700;margin-bottom:16px;">Dashboard Failed to Load</div>
+            <div style="color:var(--text-muted);max-width:420px;margin-bottom:24px;">${msg}</div>
+            <button class="btn-refresh" onclick="retryLoad()">Retry</button>
+        </div>`;
+            loader.style.display = 'flex';
+        }
+
+        function retryLoad() {
+            const loader = document.getElementById('loader');
+            loader.innerHTML = '<div class="spinner"></div><p style="margin-top:20px;color:var(--accent);">Syncing Denri Operations...</p>';
+            loadDashboard();
+        }
+
+        function updateKPIs(s) {
+            document.getElementById('kTotalSales').textContent = s.total_sales.toLocaleString();
+            document.getElementById('kTotalStock').textContent = s.total_stock.toLocaleString();
+            document.getElementById('kWhStore').textContent  = (s.warehouse_store  || 0).toLocaleString();
+            document.getElementById('kKtdaMain').textContent = (s.ktda_main_store || 0).toLocaleString();
+            document.getElementById('kWhStock').textContent  = s.warehouse_availability.toLocaleString();
+            document.getElementById('kTotalDispatch').textContent = s.total_dispatch.toLocaleString();
+            document.getElementById('kCutStore').textContent = s.cut_in_store.toLocaleString();
+            document.getElementById('kStitchWip').textContent = s.stitching_wip.toLocaleString();
+            document.getElementById('kWeeklyIssued').textContent   = s.weekly_issued.toLocaleString();
+            document.getElementById('kWeeklyStitched').textContent = (s.weekly_stitched || 0).toLocaleString();
+            document.getElementById('kWeeklyFinished').textContent  = (s.weekly_finished  || 0).toLocaleString();
+            document.getElementById('kFinishingWip').textContent    = (s.finishing_wip    || 0).toLocaleString();
+            const npSum = newProductsSummary;
+            document.getElementById('kNewProdSales').textContent = (npSum.total_sales || 0).toLocaleString();
+            document.getElementById('kNewProdTop').textContent   = npSum.best_product ? `Top: ${npSum.best_product.name} (${(npSum.best_product.sales||0).toLocaleString()})` : '—';
+            document.getElementById('kMktKenya').textContent  = (s.marketing_kenya  || 0).toLocaleString();
+            document.getElementById('kMktSinza').textContent  = (s.marketing_sinza  || 0).toLocaleString();
+            document.getElementById('kMktUganda').textContent = (s.marketing_uganda || 0).toLocaleString();
+            document.getElementById('kTargetSales').textContent = s.target_sales.toLocaleString();
+            document.getElementById('kActualSales').textContent = s.actual_sales_target.toLocaleString();
+            document.getElementById('kTotalDeficit').textContent = s.total_deficit.toLocaleString();
+            document.getElementById('kTargetAch').textContent = `${s.target_achievement}% of Target`;
+            document.getElementById('kAchPct').textContent = `${s.target_achievement}% achieved`;
+        }
+
+        function updateFilters(f) {
+            const fill = (id, items) => {
+                const el = document.getElementById(id);
+                if (el.options.length > 1) return;
+                items.forEach(i => el.add(new Option(i, i)));
+            };
+            fill('catFilter', f.categories);
+            fill('btFilter', f.bagtypes);
+            fill('prodFilter', f.products);
+            fill('colorFilter', f.colors);
+            fill('regionFilter', f.regions || []);
+            fill('shopFilter', f.shops || []);
+        }
+
+        function renderTable() {
+            const start = (currentPage - 1) * rowsPerPage;
+            const paginated = filteredData.slice(start, start + rowsPerPage);
+            const tbody = document.getElementById('tbodyMaster');
+            tbody.innerHTML = paginated.map(r => `
+        <tr>
+            <td>${r.Category}</td><td>${r.Color}</td><td style="font-weight:600">${r['Bag Type']}</td>
+            <td>${r['Total Sales']}</td><td>${r['Total Stock']}</td><td>${r['Total Warehouse Stock']}</td>
+            <td>${r['Total Dispatch']}</td><td>${r['Bags stitched']}</td><td>${r['Total Marketing']}</td>
+        </tr>
+    `).join('');
+            renderPagination();
+        }
+
+        function renderPagination() {
+            const count = Math.ceil(filteredData.length / rowsPerPage);
+            let html = `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(-1)">Prev</button>`;
+            html += `<span>Page ${currentPage} of ${count}</span>`;
+            html += `<button class="page-btn" ${currentPage === count ? 'disabled' : ''} onclick="changePage(1)">Next</button>`;
+            document.getElementById('pagination').innerHTML = html;
+        }
+
+        function changePage(delta) { currentPage += delta; renderTable(); }
+
+        function sortData(col) {
+            if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true; }
+            filteredData.sort((a, b) => {
+                let vA = a[col], vB = b[col];
+                if (typeof vA === 'string') vA = vA.toLowerCase(), vB = vB.toLowerCase();
+                return sortAsc ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
+            });
+            currentPage = 1; renderTable();
+        }
+
+        function handleSearch(q) {
+            filteredData = fullData.filter(r => Object.values(r).some(v => String(v).toLowerCase().includes(q.toLowerCase())));
+            currentPage = 1; renderTable();
+        }
+
+        const CHART_OPTS = (legend = true) => ({
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: legend, labels: { color: '#94a3b8', font: { size: 11 } } } },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                x: { grid: { display: false }, ticks: { color: '#94a3b8', maxRotation: 35, font: { size: 10 } } }
+            }
+        });
+
+        // ── CORRELATION CHARTS ENGINE ────────────────────────────────────────────────
+        let corrTypes = { 1: 'bar', 2: 'bar', 3: 'bar', 4: 'bar' };
+        const corrExpandedCats = new Set();
+        let _corrCatRows = [], _corrBtMap = {}, _corrSummaryFilter = '';
+
+        const CORR_COLS = [
+            { key: 'Total Sales',            label: 'Sales' },
+            { key: 'Total Stock',            label: 'Shop Stock' },
+            { key: 'Total Warehouse Stock',  label: 'Warehouse' },
+            { key: 'Total Dispatch',         label: 'Dispatch' },
+            { key: 'Bags stitched',          label: 'Stitched' },
+            { key: 'Stitching WIP',          label: 'Stitching WIP' },
+            { key: 'Total Marketing',        label: 'Marketing' },
+            { key: 'Monthly sales target',   label: 'Target' },
+            { key: 'Actual sales',           label: 'Actual Sales' },
+            { key: 'Deficit',                label: 'Deficit' },
+        ];
+        const corrVisibleCols = new Set(CORR_COLS.map(c => c.key)); // all on by default
+        const CC = ['#38bdf8', '#10b981', '#f59e0b', '#818cf8', '#ec4899', '#06b6d4', '#a78bfa', '#84cc16', '#f97316', '#e879f9', '#2dd4bf', '#fbbf24'];
+
+        function toAlpha(hex, a = 0.13) {
+            if (hex.startsWith('rgba')) return hex.replace(/[\d.]+\)$/, a + ')');
+            if (hex.startsWith('#')) { const n = parseInt(hex.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
+            return hex;
+        }
+        const lbl12 = arr => arr.map(r => (r['Category'] || r['Bag Type'] || '').slice(0, 15));
+        const sliceSort = (arr, key, n) => [...arr].sort((a, b) => (b[key] || 0) - (a[key] || 0)).slice(0, n);
+        function byCategory(arr, numKeys) {
+            const m = {};
+            arr.forEach(r => {
+                const k = r.Category || r['Bag Type'] || 'Other';
+                if (!m[k]) { m[k] = { Category: k }; numKeys.forEach(n => m[k][n] = 0); }
+                numKeys.forEach(n => m[k][n] = (m[k][n] || 0) + (r[n] || 0));
+            });
+            return Object.values(m);
+        }
+        const getCN = () => parseInt(document.getElementById('corrTopN')?.value) || 12;
+        const getCS = () => document.getElementById('corrSortBy')?.value || 'Total Sales';
+        const BOPTS = (stacked = false) => ({
+            responsive: true, maintainAspectRatio: false,
+            animation: { duration: 480, easing: 'easeInOutQuart' },
+            scales: {
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, stacked },
+                x: { grid: { display: false }, ticks: { color: '#94a3b8', maxRotation: 35, font: { size: 10 } }, stacked },
+            },
+            plugins: { legend: { display: true, labels: { color: '#94a3b8', font: { size: 11 } } } },
+        });
+
+        function setCorrType(n, t, btn) {
+            corrTypes[n] = t;
+            document.querySelectorAll(`.ctype-btn[data-chart="${n}"]`).forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            [renderCorr1, renderCorr2, renderCorr3, renderCorr4][n - 1](t);
+        }
+
+        function renderCharts() {
+            renderCorrTable();
+            renderCorr1(corrTypes[1]);
+            renderCorr2(corrTypes[2]);
+            renderCorr3(corrTypes[3]);
+            renderCorr4(corrTypes[4]);
+        }
+
+        function renderCorrTable() {
+            const keys1 = ['Total Sales','Total Stock','Total Warehouse Stock','Stitching WIP'];
+            const keys2 = ['Total Dispatch','Bags stitched'];
+            const keys3 = ['Total Marketing'];
+            const keys4 = ['Monthly sales target','Actual sales','Deficit'];
+            const allKeys = [...keys1,...keys2,...keys3,...keys4];
+
+            const catMap = {}, btMap = {};
+            const ensureCat = c => { if (!catMap[c]) { catMap[c]={Category:c}; allKeys.forEach(k=>catMap[c][k]=0); } };
+            const ensureBt  = (c,b) => {
+                if (!btMap[c]) btMap[c]={};
+                if (!btMap[c][b]) { btMap[c][b]={'Bag Type':b}; allKeys.forEach(k=>btMap[c][b][k]=0); }
+            };
+            [[correlations.one||[],keys1],[correlations.two||[],keys2],
+             [correlations.three||[],keys3],[correlations.four||[],keys4]
+            ].forEach(([arr,numKeys]) => arr.forEach(r => {
+                const cat = r.Category || r['Bag Type'] || 'Other';
+                const bt  = r['Bag Type'] || cat;
+                ensureCat(cat); ensureBt(cat, bt);
+                numKeys.forEach(k => { if (r[k]!==undefined){ catMap[cat][k]+=r[k]||0; btMap[cat][bt][k]+=r[k]||0; } });
+            }));
+
+            _corrCatRows = Object.values(catMap).sort((a,b)=>(b['Total Sales']||0)-(a['Total Sales']||0));
+            _corrBtMap   = btMap;
+            buildCorrSummaryHTML();
+        }
+
+        function buildCorrSummaryHTML() {
+            const q        = _corrSummaryFilter.toLowerCase();
+            const sortKey  = getCS();
+            const visCols  = CORR_COLS.filter(c => corrVisibleCols.has(c.key));
+            const fmt      = n => (n||0) ? Number(n).toLocaleString() : '—';
+            const defStyle = (c, v) => c.key === 'Deficit' && v > 0 ? ' style="color:var(--danger);font-weight:600"' : '';
+            const totalCols = visCols.length + 1;
+
+            // ── Toggle pills ──
+            document.getElementById('corrColToggles').innerHTML =
+                '<span style="font-size:0.72rem;color:var(--text-muted);font-weight:600;align-self:center;margin-right:4px;">Columns:</span>' +
+                CORR_COLS.map(c => {
+                    const on = corrVisibleCols.has(c.key);
+                    return `<button class="ctype-btn${on?' active':''}" onclick="toggleCorrCol('${c.key}')">${c.label}</button>`;
+                }).join('');
+
+            // ── Header row ──
+            document.getElementById('corrSummaryHead').innerHTML =
+                '<th>Category</th>' +
+                visCols.map(c => {
+                    const active = c.key === sortKey ? ' style="color:var(--accent);border-bottom:2px solid var(--accent)"' : '';
+                    return `<th data-sort="${c.key}"${active}>${c.label}</th>`;
+                }).join('');
+
+            // ── Body rows ──
+            const sorted = [..._corrCatRows].sort((a,b) => (b[sortKey]||0) - (a[sortKey]||0));
+            let html = '';
+            sorted.forEach(r => {
+                const cat = r.Category;
+                if (q && !cat.toLowerCase().includes(q)) return;
+                const open = corrExpandedCats.has(cat);
+                const bts  = Object.values(_corrBtMap[cat]||{}).sort((a,b)=>(b[sortKey]||0)-(a[sortKey]||0));
+                html += `<tr class="corr-cat-row" onclick="toggleCorrCat('${cat.replace(/'/g,"\\'")}')" style="cursor:pointer;">
+                    <td style="font-weight:700;white-space:nowrap;">
+                        <span style="color:var(--accent);margin-right:5px;font-size:0.8rem;">${open?'▾':'▸'}</span>${cat}
+                        <span style="font-size:0.68rem;color:var(--text-muted);margin-left:5px;">${bts.length} bag type${bts.length!==1?'s':''}</span>
+                    </td>
+                    ${visCols.map(c=>`<td${defStyle(c,r[c.key]||0)}>${fmt(r[c.key])}</td>`).join('')}
+                </tr>`;
+                if (open) {
+                    bts.forEach(b => {
+                        html += `<tr class="corr-bt-row">
+                            <td style="padding-left:30px;color:var(--text-muted);">↳ ${b['Bag Type']}</td>
+                            ${visCols.map(c=>`<td${defStyle(c,b[c.key]||0)}>${fmt(b[c.key])}</td>`).join('')}
+                        </tr>`;
+                    });
+                }
+            });
+            document.getElementById('tbodyCorrSummary').innerHTML = html ||
+                `<tr><td colspan="${totalCols}" style="text-align:center;color:var(--text-muted);padding:20px;">No matching categories</td></tr>`;
+        }
+
+        function toggleCorrCol(key) {
+            corrVisibleCols.has(key) ? corrVisibleCols.delete(key) : corrVisibleCols.add(key);
+            buildCorrSummaryHTML();
+        }
+
+        function toggleCorrCat(cat) {
+            corrExpandedCats.has(cat) ? corrExpandedCats.delete(cat) : corrExpandedCats.add(cat);
+            buildCorrSummaryHTML();
+        }
+
+        function filterCorrSummary(val) {
+            _corrSummaryFilter = val.trim();
+            buildCorrSummaryHTML();
+        }
+
+        function exportCorrSummaryExcel() {
+            const fmt = n => (n||0) || 0;
+            const headers = ['Category','Bag Type','Sales','Shop Stock','Warehouse','Dispatch','Stitched','Stitching WIP','Marketing','Target','Actual Sales','Deficit'];
+            const rows = [headers];
+            _corrCatRows.forEach(r => {
+                rows.push([r.Category,'(Total)',fmt(r['Total Sales']),fmt(r['Total Stock']),fmt(r['Total Warehouse Stock']),
+                    fmt(r['Total Dispatch']),fmt(r['Bags stitched']),fmt(r['Stitching WIP']),fmt(r['Total Marketing']),
+                    fmt(r['Monthly sales target']),fmt(r['Actual sales']),fmt(r['Deficit'])]);
+                Object.values(_corrBtMap[r.Category]||{}).sort((a,b)=>(b['Total Sales']||0)-(a['Total Sales']||0)).forEach(b => {
+                    rows.push([r.Category, b['Bag Type'],fmt(b['Total Sales']),fmt(b['Total Stock']),fmt(b['Total Warehouse Stock']),
+                        fmt(b['Total Dispatch']),fmt(b['Bags stitched']),fmt(b['Stitching WIP']),fmt(b['Total Marketing']),
+                        fmt(b['Monthly sales target']),fmt(b['Actual sales']),fmt(b['Deficit'])]);
+                });
+            });
+            const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+            const blob = new Blob([csv], {type:'text/csv'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `Category_Activity_Summary_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+        }
+
+        // ── Chart 1: Sales / Shop Stock / Warehouse / Stitch WIP / Deficit ───────────
+        function renderCorr1(type) {
+            const agg = byCategory(correlations.one || [], ['Total Sales', 'Total Stock', 'Total Warehouse Stock', 'Stitching WIP', 'Deficit']);
+            const data = [...agg].sort((a, b) => (b[getCS()] || 0) - (a[getCS()] || 0));
+            const MS = [
+                { l: 'Sales', k: 'Total Sales', c: '#38bdf8' },
+                { l: 'Shop Stock', k: 'Total Stock', c: '#10b981' },
+                { l: 'Warehouse', k: 'Total Warehouse Stock', c: '#818cf8' },
+                { l: 'Stitch WIP', k: 'Stitching WIP', c: '#ec4899' },
+                { l: 'Deficit', k: 'Deficit', c: '#ef4444' },
+            ];
+            if (type === 'radar') {
+                const top = data.slice(0, 6);
+                const mx = MS.map(m => Math.max(...top.map(r => r[m.k] || 0), 1));
+                updateChart('chartCorr1', 'radar', {
+                    labels: MS.map(m => m.l),
+                    datasets: top.map((r, i) => ({
+                        label: (r['Category'] || '').slice(0, 14),
+                        data: MS.map((m, j) => Math.round(((r[m.k] || 0) / mx[j]) * 100)),
+                        backgroundColor: CC[i] + '28', borderColor: CC[i], borderWidth: 2, pointRadius: 3,
+                    }))
+                }, {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 480, easing: 'easeInOutQuart' },
+                    scales: { r: { grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#94a3b8', backdropColor: 'transparent', font: { size: 9 } }, pointLabels: { color: '#94a3b8', font: { size: 10 } }, beginAtZero: true, max: 100 } },
+                    plugins: { legend: { display: true, labels: { color: '#94a3b8', font: { size: 10 } } } },
+                });
+            } else {
+                const isL = type === 'line';
+                updateChart('chartCorr1', isL ? 'line' : 'bar', {
+                    labels: lbl12(data), datasets: MS.map(m => ({
+                        label: m.l, data: data.map(r => r[m.k] || 0),
+                        backgroundColor: isL ? toAlpha(m.c) : m.c,
+                        borderColor: m.c, borderWidth: isL ? 2 : 0, fill: isL, tension: isL ? 0.4 : 0, pointRadius: isL ? 3 : 0,
+                        borderRadius: isL ? 0 : 4,
+                    }))
+                }, BOPTS());
+            }
+            const tS = data.reduce((s, r) => s + (r['Total Sales'] || 0), 0), tD = data.reduce((s, r) => s + (r['Deficit'] || 0), 0);
+            if (data[0]) document.getElementById('corrStat1').innerHTML =
+                `<strong>Top category:</strong> ${data[0]['Category'] || ''} — ${(data[0]['Total Sales'] || 0).toLocaleString()} units &nbsp;·&nbsp;` +
+                `<strong> Group total sales:</strong> ${tS.toLocaleString()} &nbsp;·&nbsp;` +
+                `<strong> Total deficit:</strong> <span style="color:var(--danger)">${tD.toLocaleString()}</span>`;
+        }
+
+        // ── Chart 2: Sales / Dispatch / Bags Stitched / Deficit ──────────────────────
+        function renderCorr2(type) {
+            const agg = byCategory(correlations.two || [], ['Total Sales', 'Total Dispatch', 'Bags stitched', 'Deficit']);
+            const data = [...agg].sort((a, b) => (b[getCS()] || 0) - (a[getCS()] || 0));
+            const MS = [
+                { l: 'Sales', k: 'Total Sales', c: '#38bdf8' },
+                { l: 'Dispatch', k: 'Total Dispatch', c: '#f59e0b' },
+                { l: 'Bags Stitched', k: 'Bags stitched', c: '#818cf8' },
+                { l: 'Deficit', k: 'Deficit', c: '#ef4444' },
+            ];
+            const isL = type === 'line', isSt = type === 'stacked';
+            updateChart('chartCorr2', isL ? 'line' : 'bar', {
+                labels: lbl12(data), datasets: MS.map(m => ({
+                    label: m.l, data: data.map(r => r[m.k] || 0),
+                    backgroundColor: isL ? toAlpha(m.c) : (isSt ? m.c + 'cc' : m.c),
+                    borderColor: m.c, borderWidth: (isL || isSt) ? 2 : 0,
+                    fill: isL, tension: isL ? 0.4 : 0, pointRadius: isL ? 3 : 0, borderRadius: (!isL && !isSt) ? 4 : 0,
+                }))
+            }, BOPTS(isSt));
+            const tS = data.reduce((s, r) => s + (r['Total Sales'] || 0), 0), tD = data.reduce((s, r) => s + (r['Total Dispatch'] || 0), 0), tSt = data.reduce((s, r) => s + (r['Bags stitched'] || 0), 0);
+            document.getElementById('corrStat2').innerHTML =
+                `<strong>Dispatch rate:</strong> ${tS > 0 ? Math.round(tD / tS * 100) : 0}%` +
+                ` (${tD.toLocaleString()} dispatched / ${tS.toLocaleString()} sold) &nbsp;·&nbsp;` +
+                `<strong> Stitched this period:</strong> ${tSt.toLocaleString()} bags`;
+        }
+
+        // ── Chart 3: Sales / Marketing / Stocks / Deficit ────────────────────────────
+        function renderCorr3(type) {
+            const agg = byCategory(correlations.three || [], ['Total Sales', 'Total Marketing', 'Total Stock', 'Deficit']);
+            const data = [...agg].sort((a, b) => (b[getCS()] || 0) - (a[getCS()] || 0));
+            if (type === 'bubble') {
+                const mxM = Math.max(...data.map(r => r['Total Marketing'] || 0), 1);
+                updateChart('chartCorr3', 'bubble', {
+                    datasets: data.map((r, i) => ({
+                        label: r.Category || 'Other',
+                        data: [{
+                            x: r['Total Sales'] || 0, y: r['Total Stock'] || 0,
+                            r: Math.max(5, Math.sqrt((r['Total Marketing'] || 0) / mxM) * 24),
+                            mktg: r['Total Marketing'] || 0,
+                        }],
+                        backgroundColor: CC[i % CC.length] + '99', borderColor: CC[i % CC.length], borderWidth: 1,
+                    }))
+                }, {
+                    responsive: true, maintainAspectRatio: false,
+                    animation: { duration: 480, easing: 'easeInOutQuart' },
+                    scales: {
+                        x: { title: { display: true, text: 'Sales →', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                        y: { title: { display: true, text: 'Shop Stock →', color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    },
+                    plugins: {
+                        legend: { display: true, labels: { color: '#94a3b8', font: { size: 10 } } },
+                        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: Sales=${ctx.raw.x.toLocaleString()}, Stock=${ctx.raw.y.toLocaleString()}, Marketing=${ctx.raw.mktg}` } },
+                    },
+                });
+            } else {
+                const isL = type === 'line';
+                const MS = [
+                    { l: 'Sales', k: 'Total Sales', c: '#38bdf8' },
+                    { l: 'Marketing', k: 'Total Marketing', c: '#f59e0b' },
+                    { l: 'Stocks', k: 'Total Stock', c: '#10b981' },
+                    { l: 'Deficit', k: 'Deficit', c: '#ef4444' },
+                ];
+                updateChart('chartCorr3', isL ? 'line' : 'bar', {
+                    labels: lbl12(data), datasets: MS.map(m => ({
+                        label: m.l, data: data.map(r => r[m.k] || 0),
+                        backgroundColor: isL ? toAlpha(m.c) : m.c,
+                        borderColor: m.c, borderWidth: isL ? 2 : 0, fill: isL, tension: isL ? 0.4 : 0, pointRadius: isL ? 3 : 0, borderRadius: isL ? 0 : 4,
+                    }))
+                }, BOPTS());
+            }
+            const tM = data.reduce((s, r) => s + (r['Total Marketing'] || 0), 0), tS = data.reduce((s, r) => s + (r['Total Sales'] || 0), 0);
+            const best = data.filter(r => r['Total Marketing'] > 0).sort((a, b) => (b['Total Sales'] / b['Total Marketing']) - (a['Total Sales'] / a['Total Marketing']))[0];
+            document.getElementById('corrStat3').innerHTML =
+                `<strong>Group ROI:</strong> ${tM > 0 ? (tS / tM).toFixed(1) : 'N/A'}× sales per mktg unit &nbsp;·&nbsp;` +
+                `<strong> Best ROI:</strong> ${best ? best['Category'] : '-'} &nbsp;·&nbsp;` +
+                `<strong> Total marketing:</strong> ${tM.toLocaleString()} units`;
+        }
+
+        // ── Chart 4: Monthly Target / Sales / Deficit ─────────────────────────────────
+        function renderCorr4(type) {
+            const raw = byCategory(correlations.four || [], ['Monthly sales target', 'Actual sales', 'Deficit']);
+            const data = sliceSort(raw, 'Monthly sales target', getCN());
+            if (type === 'doughnut') {
+                const ents = sliceSort(raw, 'Monthly sales target', 9);
+                updateChart('chartCorr4', 'doughnut', {
+                    labels: ents.map(r => r['Category'] || 'Other'),
+                    datasets: [{ data: ents.map(r => r['Actual sales'] || 0), backgroundColor: CC.slice(0, ents.length).map(c => c + 'cc'), borderColor: '#0f172a', borderWidth: 2 }]
+                }, {
+                    responsive: true, maintainAspectRatio: false, cutout: '58%',
+                    animation: { duration: 480, easing: 'easeInOutQuart' },
+                    plugins: {
+                        legend: { display: true, position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } },
+                        tooltip: { callbacks: { label: ctx => { const e = ents[ctx.dataIndex]; return `${ctx.label}: ${ctx.raw.toLocaleString()} (${e['Monthly sales target'] > 0 ? ((e['Actual sales'] / e['Monthly sales target']) * 100).toFixed(0) : 0}% of target)`; } } },
+                    },
+                });
+            } else if (type === 'hbar') {
+                updateChart('chartCorr4', 'bar', {
+                    labels: data.map(r => (r['Category'] || '').slice(0, 15)),
+                    datasets: [
+                        { label: 'Achieved', data: data.map(r => r['Actual sales'] || 0), backgroundColor: '#10b981', borderRadius: 3 },
+                        { label: 'Gap', data: data.map(r => r['Deficit'] || 0), backgroundColor: 'rgba(239,68,68,0.5)', borderRadius: 3 },
+                    ]
+                }, {
+                    ...BOPTS(true), indexAxis: 'y',
+                    scales: { x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' }, stacked: true }, y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 10 } }, stacked: true } },
+                });
+            } else {
+                const isL = type === 'line';
+                const MS = [
+                    { l: 'Target', k: 'Monthly sales target', c: '#94a3b8' },
+                    { l: 'Monthly Sales', k: 'Actual sales', c: '#10b981' },
+                    { l: 'Deficit', k: 'Deficit', c: '#ef4444' },
+                ];
+                updateChart('chartCorr4', isL ? 'line' : 'bar', {
+                    labels: lbl12(data), datasets: MS.map(m => ({
+                        label: m.l, data: data.map(r => r[m.k] || 0),
+                        backgroundColor: isL ? toAlpha(m.c) : (m.k === 'Monthly sales target' ? 'rgba(148,163,184,0.35)' : m.c),
+                        borderColor: m.c, borderWidth: isL ? 2 : 0, fill: isL, tension: isL ? 0.4 : 0, pointRadius: isL ? 3 : 0, borderRadius: isL ? 0 : 4,
+                    }))
+                }, BOPTS());
+            }
+            const tT = raw.reduce((s, r) => s + (r['Monthly sales target'] || 0), 0), tA = raw.reduce((s, r) => s + (r['Actual sales'] || 0), 0);
+            const gap = [...raw].sort((a, b) => (b['Deficit'] || 0) - (a['Deficit'] || 0))[0];
+            document.getElementById('corrStat4').innerHTML =
+                `<strong>Overall achievement:</strong> <span style="color:var(--success)">${tT > 0 ? ((tA / tT) * 100).toFixed(1) : 0}%</span>` +
+                ` — ${tA.toLocaleString()} / ${tT.toLocaleString()} target &nbsp;·&nbsp;` +
+                `<strong> Largest gap:</strong> ${gap ? gap['Category'] : '-'}` +
+                ` <span style="color:var(--danger)">(${gap ? (gap['Deficit'] || 0).toLocaleString() : '0'} units)</span>`;
+        }
+
+        // ── SHOP PERFORMANCE ─────────────────────────────────────────────────────────
+        function filterShops() {
+            const region = document.getElementById('regionFilter').value;
+            const shop = document.getElementById('shopFilter').value;
+            filteredShopData = allShopData.filter(s =>
+                (region === 'All' || s.region === region) &&
+                (shop === 'All' || s.shop === shop)
+            );
+            renderShopSection();
+        }
+
+        function sortShops(col) {
+            if (shopSortCol === col) shopSortAsc = !shopSortAsc;
+            else { shopSortCol = col; shopSortAsc = col === 'shop' || col === 'region'; }
+            filteredShopData.sort((a, b) => {
+                let vA = a[col], vB = b[col];
+                if (typeof vA === 'string') vA = vA.toLowerCase(), vB = vB.toLowerCase();
+                return shopSortAsc ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
+            });
+            renderShopSection();
+        }
+
+        function renderShopSection() {
+            // Region summary cards
+            const regionMap = {};
+            filteredShopData.forEach(s => {
+                if (!regionMap[s.region]) regionMap[s.region] = { sales: 0, stocks: 0, shops: 0 };
+                regionMap[s.region].sales += s.sales;
+                regionMap[s.region].stocks += s.stocks;
+                regionMap[s.region].shops++;
+            });
+            const colors = ['var(--accent)', 'var(--success)', 'var(--accent-secondary)', 'var(--warning)', '#ec4899', '#06b6d4'];
+            document.getElementById('regionCards').innerHTML = Object.entries(regionMap)
+                .sort((a, b) => b[1].sales - a[1].sales)
+                .map(([r, v], i) => `
+        <div class="card" style="border-top:3px solid ${colors[i % colors.length]}">
+            <div class="card-title" style="font-size:0.8rem;margin-bottom:10px;">${r}</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+                <div><div style="font-size:1.3rem;font-weight:800;color:var(--accent)">${v.sales.toLocaleString()}</div><div style="font-size:0.65rem;color:var(--text-muted)">SALES</div></div>
+                <div><div style="font-size:1.3rem;font-weight:800;color:var(--success)">${v.stocks.toLocaleString()}</div><div style="font-size:0.65rem;color:var(--text-muted)">STOCKS</div></div>
+                <div><div style="font-size:1.3rem;font-weight:800;color:var(--text-muted)">${v.shops}</div><div style="font-size:0.65rem;color:var(--text-muted)">SHOPS</div></div>
+            </div>
+        </div>`).join('');
+
+            // Charts
+            const sorted = [...filteredShopData].sort((a, b) => b.sales - a.sales);
+            const shopLabels = sorted.map(s => s.shop);
+            updateChart('chartShopSales', 'bar', {
+                labels: shopLabels,
+                datasets: [{ label: 'Sales', data: sorted.map(s => s.sales), backgroundColor: sorted.map(s => shopColor(s.region)) }]
+            }, { ...CHART_OPTS(false), plugins: { legend: { display: false }, tooltip: { callbacks: { afterLabel: ctx => `Region: ${sorted[ctx.dataIndex].region}` } } } });
+
+            const sortedByStock = [...filteredShopData].sort((a, b) => b.stocks - a.stocks);
+            updateChart('chartShopStocks', 'bar', {
+                labels: sortedByStock.map(s => s.shop),
+                datasets: [{ label: 'Stocks', data: sortedByStock.map(s => s.stocks), backgroundColor: sortedByStock.map(s => shopColor(s.region)) }]
+            }, CHART_OPTS(false));
+
+            // Table
+            document.getElementById('tbodyShops').innerHTML = filteredShopData.map(s => {
+                const cover = s.sales > 0 ? ((s.stocks / s.sales) * 100).toFixed(0) + '%' : '—';
+                const bar = s.sales > 0 ? `<div style="background:var(--glass-border);border-radius:4px;height:6px;width:100%;margin-top:4px;"><div style="background:var(--accent);height:6px;border-radius:4px;width:${Math.min(100, (s.sales / Math.max(...filteredShopData.map(x => x.sales))) * 100).toFixed(0)}%"></div></div>` : '';
+                return `<tr>
+            <td style="font-weight:600">${s.shop}</td>
+            <td><span style="background:${shopColor(s.region)}22;color:${shopColor(s.region)};padding:2px 8px;border-radius:20px;font-size:0.7rem;">${s.region}</span></td>
+            <td>${s.sales.toLocaleString()}${bar}</td>
+            <td>${s.stocks.toLocaleString()}</td>
+            <td>${cover}</td>
+        </tr>`;
+            }).join('');
+        }
+
+        const REGION_COLORS = {
+            'Nairobi CBD': '#38bdf8',
+            'Rift Valley': '#10b981',
+            'Western & Nyanza': '#818cf8',
+            'Central Region': '#f59e0b',
+            'Coastal Region': '#ec4899',
+            'Diaspora': '#06b6d4',
+            'Online': '#a78bfa',
+        };
+        function shopColor(region) { return REGION_COLORS[region] || '#94a3b8'; }
+
+        function updateChart(id, type, data, options) {
+            if (charts[id]) charts[id].destroy();
+            charts[id] = new Chart(document.getElementById(id), { type, data, options });
+        }
+
+        async function loadInsights() {
+            try {
+                const res  = await fetch('/api/insights');
+                const data = await res.json();
+                _renderInsightAlerts(data.alerts   || []);
+                _renderInsightTarget(data.target   || {});
+                _renderInsightStock(data.stock_alignment    || {});
+                _renderInsightDispatch(data.dispatch_alignment || {});
+                _renderInsightCashCows(data.cash_cows || []);
+                _renderInsightWeekly(data.weekly   || {});
+            } catch(e) {
+                document.getElementById('insightsList').innerHTML =
+                    `<div style="color:var(--danger);padding:12px;">Failed to load insights: ${e.message}</div>`;
+            }
+        }
+
+        function _renderInsightAlerts(alerts) {
+            document.getElementById('insightsList').innerHTML = alerts.map(i => `
+                <div class="insight-card ${i.type}" style="margin-bottom:10px;">
+                    <div style="font-weight:700;margin-bottom:4px;">${i.title}</div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);">${i.message}</div>
+                </div>`).join('') || '<div style="color:var(--text-muted);padding:16px;">No alerts.</div>';
+        }
+
+        function _renderInsightTarget(t) {
+            const el = document.getElementById('insightTarget');
+            if (!t || !t.total_target) { el.innerHTML = '<div style="color:var(--text-muted);padding:16px;">Target data unavailable.</div>'; return; }
+            const fmt = n => Number(n||0).toLocaleString();
+            const pct = Math.min(100, t.pct_achieved || 0);
+            const sc  = t.status === 'on_track' ? 'var(--success)' : t.status === 'at_risk' ? 'var(--warning)' : 'var(--danger)';
+            const sl  = t.status === 'on_track' ? '✓ On Track'     : t.status === 'at_risk' ? '⚠ At Risk'      : '✗ Behind Target';
+            const bar = `<div style="background:var(--glass-border);border-radius:99px;height:8px;margin:8px 0 14px;">
+                <div style="background:${sc};height:8px;border-radius:99px;width:${pct}%;transition:width .5s;"></div></div>`;
+            const topDef = (t.top_deficit||[]).map(d =>
+                `<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--glass-border);font-size:0.78rem;">
+                    <span>${d.Category||''} ${d['Bag Type']?'· '+d['Bag Type']:''}</span>
+                    <span style="color:var(--danger);font-weight:600;">-${fmt(d.Deficit)}</span></div>`).join('');
+            el.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                    <div><div style="font-size:1.7rem;font-weight:800;color:var(--accent);">${pct}%</div>
+                         <div style="font-size:0.72rem;color:var(--text-muted);">of target achieved</div></div>
+                    <div style="text-align:right;"><div style="font-size:0.85rem;font-weight:700;color:${sc};">${sl}</div>
+                         <div style="font-size:0.72rem;color:var(--text-muted);">Day ${t.day_of_month} of ${t.days_in_month}</div></div>
+                </div>${bar}
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:0.78rem;">
+                    <div style="background:var(--glass);padding:10px;border-radius:10px;"><div style="color:var(--text-muted);margin-bottom:3px;">Actual Sales</div><div style="font-weight:700;color:var(--success);">${fmt(t.actual_sales)}</div></div>
+                    <div style="background:var(--glass);padding:10px;border-radius:10px;"><div style="color:var(--text-muted);margin-bottom:3px;">Remaining Deficit</div><div style="font-weight:700;color:var(--danger);">${fmt(t.deficit)}</div></div>
+                    <div style="background:var(--glass);padding:10px;border-radius:10px;"><div style="color:var(--text-muted);margin-bottom:3px;">Daily Run Rate</div><div style="font-weight:700;color:var(--accent);">${fmt(t.daily_run_rate)}/day</div></div>
+                    <div style="background:var(--glass);padding:10px;border-radius:10px;"><div style="color:var(--text-muted);margin-bottom:3px;">Need / Day to Close</div><div style="font-weight:700;color:var(--warning);">${fmt(t.needed_daily_to_close)}/day</div></div>
+                </div>
+                <div style="font-size:0.78rem;padding:10px;background:rgba(56,189,248,.08);border-radius:8px;border-left:3px solid var(--accent);margin-bottom:${topDef?'10px':'0'};">
+                    At current pace, projected month-end: <strong style="color:var(--accent);">${fmt(t.projected_month_end)}</strong>
+                    (${t.projected_pct}% of target) with ${t.days_remaining} day${t.days_remaining!==1?'s':''} remaining.
+                </div>
+                ${topDef ? `<div style="font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Top Deficit Items</div>${topDef}` : ''}`;
+        }
+
+        function _renderInsightStock(s) {
+            const el = document.getElementById('insightStock');
+            if (!s || !s.total_sales) { el.innerHTML = '<div style="color:var(--text-muted);padding:16px;">Insufficient data.</div>'; return; }
+            const fmt = n => Number(n||0).toLocaleString();
+            const underHtml = (s.understocked||[]).map(r =>
+                `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--glass-border);font-size:0.78rem;">
+                    <span>${r.Category||''} ${r['Bag Type']?'· '+r['Bag Type']:''}</span>
+                    <span style="color:var(--danger);">Sales ${fmt(r['Total Sales'])} / Stock ${fmt(r['Total Stock'])}</span>
+                </div>`).join('');
+            el.innerHTML = `
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px;font-size:0.78rem;text-align:center;">
+                    <div style="background:rgba(239,68,68,.12);border-radius:10px;padding:10px;">
+                        <div style="font-size:1.4rem;font-weight:800;color:var(--danger);">${s.understocked_count}</div>
+                        <div style="color:var(--text-muted);">Understocked</div></div>
+                    <div style="background:rgba(16,185,129,.12);border-radius:10px;padding:10px;">
+                        <div style="font-size:1.4rem;font-weight:800;color:var(--success);">${s.well_aligned_count}</div>
+                        <div style="color:var(--text-muted);">Well Aligned</div></div>
+                    <div style="background:rgba(245,158,11,.12);border-radius:10px;padding:10px;">
+                        <div style="font-size:1.4rem;font-weight:800;color:var(--warning);">${s.overstocked_count}</div>
+                        <div style="color:var(--text-muted);">Overstocked</div></div>
+                </div>
+                <div style="font-size:0.78rem;padding:10px;background:var(--glass);border-radius:8px;margin-bottom:10px;">
+                    Overall stock coverage ratio: <strong style="color:var(--accent);">${s.overall_coverage}×</strong>
+                    &nbsp;·&nbsp; Sales: <strong>${fmt(s.total_sales)}</strong>
+                    &nbsp;·&nbsp; Stock: <strong>${fmt(s.total_stock)}</strong>
+                </div>
+                ${underHtml ? `<div style="font-size:0.78rem;font-weight:600;color:var(--danger);margin-bottom:6px;">⚠ Understocked (coverage &lt; 0.5×)</div>${underHtml}` : ''}`;
+        }
+
+        function _renderInsightDispatch(d) {
+            const el = document.getElementById('insightDispatch');
+            if (!d || !d.total_sales) { el.innerHTML = '<div style="color:var(--text-muted);padding:16px;">Insufficient data.</div>'; return; }
+            const fmt = n => Number(n||0).toLocaleString();
+            const bar = (pct, c) => `<div style="background:var(--glass-border);border-radius:99px;height:6px;margin:3px 0 10px;">
+                <div style="background:${c};height:6px;border-radius:99px;width:${Math.min(100,pct)}%;"></div></div>`;
+            const dc = d.dispatch_ratio >= 80 ? 'var(--success)' : d.dispatch_ratio >= 50 ? 'var(--warning)' : 'var(--danger)';
+            const sc = d.stitch_ratio   >= 80 ? 'var(--success)' : d.stitch_ratio   >= 50 ? 'var(--warning)' : 'var(--danger)';
+            const lagHtml = (d.lagging||[]).map(r =>
+                `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--glass-border);font-size:0.78rem;">
+                    <span>${r.Category||''} ${r['Bag Type']?'· '+r['Bag Type']:''}</span>
+                    <span style="color:var(--warning);">lag: ${fmt(r.dispatch_lag)}</span>
+                </div>`).join('');
+            el.innerHTML = `
+                <div style="font-size:0.8rem;display:flex;justify-content:space-between;margin-bottom:2px;">
+                    <span style="color:var(--text-muted);">Dispatch / Sales</span><span style="font-weight:700;color:${dc};">${d.dispatch_ratio}%</span></div>
+                ${bar(d.dispatch_ratio, dc)}
+                <div style="font-size:0.8rem;display:flex;justify-content:space-between;margin-bottom:2px;">
+                    <span style="color:var(--text-muted);">Stitched / Sales</span><span style="font-weight:700;color:${sc};">${d.stitch_ratio}%</span></div>
+                ${bar(d.stitch_ratio, sc)}
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0;font-size:0.75rem;text-align:center;">
+                    <div style="background:var(--glass);border-radius:10px;padding:8px;"><div style="font-weight:700;color:var(--accent);">${fmt(d.total_sales)}</div><div style="color:var(--text-muted);">Sales</div></div>
+                    <div style="background:var(--glass);border-radius:10px;padding:8px;"><div style="font-weight:700;color:${dc};">${fmt(d.total_dispatch)}</div><div style="color:var(--text-muted);">Dispatched</div></div>
+                    <div style="background:var(--glass);border-radius:10px;padding:8px;"><div style="font-weight:700;color:${sc};">${fmt(d.total_stitched)}</div><div style="color:var(--text-muted);">Stitched</div></div>
+                </div>
+                ${d.dispatch_gap > 0 ? `<div style="font-size:0.78rem;padding:8px;background:rgba(245,158,11,.1);border-radius:8px;border-left:3px solid var(--warning);margin-bottom:10px;">
+                    Dispatch gap: <strong style="color:var(--warning);">${fmt(d.dispatch_gap)}</strong> units behind sales.</div>` : ''}
+                ${lagHtml ? `<div style="font-size:0.78rem;font-weight:600;color:var(--text-muted);margin-bottom:6px;">Dispatch Lag by Category</div>${lagHtml}` : ''}`;
+        }
+
+        function _renderInsightCashCows(cows) {
+            const el = document.getElementById('insightCashCows');
+            if (!cows || !cows.length) { el.innerHTML = '<div style="color:var(--text-muted);padding:16px;">Revenue data unavailable — ensure Revenue Breakdown sheet is loaded.</div>'; return; }
+            const fmt = n => Number(n||0).toLocaleString();
+            const COLS = ['#fbbf24','#f59e0b','#d97706','#b45309','#92400e'];
+            el.innerHTML = `<div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:12px;">Ranked by revenue efficiency (revenue/unit × volume sold)</div>` +
+                cows.map((r, i) => {
+                    const pct = i === 0 ? 100 : Math.round(r.score / cows[0].score * 100);
+                    return `<div style="margin-bottom:12px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;font-size:0.82rem;">
+                            <div style="display:flex;align-items:center;gap:7px;">
+                                <span style="font-size:1rem;font-weight:800;color:${COLS[i]};">#${i+1}</span>
+                                <span style="font-weight:600;">${r.Category||''}</span>
+                                ${r['Bag Type']?`<span style="color:var(--text-muted);font-size:0.72rem;">${r['Bag Type']}</span>`:''}
+                            </div>
+                            <span style="color:${COLS[i]};font-weight:700;">${fmt(r['Total Revenue'])}</span>
+                        </div>
+                        <div style="background:var(--glass-border);border-radius:99px;height:5px;margin-bottom:3px;">
+                            <div style="background:${COLS[i]};height:5px;border-radius:99px;width:${pct}%;"></div></div>
+                        <div style="font-size:0.7rem;color:var(--text-muted);">${fmt(r['Total Sales'])} sold &nbsp;·&nbsp; Revenue/unit: <strong style="color:${COLS[i]};">${fmt(r.revenue_per_unit)}</strong></div>
+                    </div>`;
+                }).join('');
+        }
+
+        function _renderInsightWeekly(w) {
+            const el = document.getElementById('insightWeekly');
+            if (!w || !w.total_sales) { el.innerHTML = '<div style="color:var(--text-muted);padding:16px;">Production data unavailable.</div>'; return; }
+            const fmt = n => Number(n||0).toLocaleString();
+            const sc  = w.weekly_status === 'good' ? 'var(--success)' : w.weekly_status === 'moderate' ? 'var(--warning)' : 'var(--danger)';
+            const sl  = w.weekly_status === 'good' ? '✓ Strong Week' : w.weekly_status === 'moderate' ? '⚠ Moderate' : '↓ Low Activity';
+            const bar = (pct, c) => `<div style="background:var(--glass-border);border-radius:99px;height:6px;margin:3px 0 8px;">
+                <div style="background:${c};height:6px;border-radius:99px;width:${Math.min(100,pct)}%;"></div></div>`;
+            const pc  = w.prod_ratio     >= 80 ? 'var(--success)' : w.prod_ratio     >= 50 ? 'var(--warning)' : 'var(--danger)';
+            const dc  = w.dispatch_ratio >= 80 ? 'var(--success)' : w.dispatch_ratio >= 50 ? 'var(--warning)' : 'var(--danger)';
+            el.innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                    <div style="font-size:0.9rem;font-weight:700;color:${sc};">${sl}</div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);">Completion rate: <strong style="color:var(--accent);">${w.completion_rate}%</strong></div>
+                </div>
+                <div style="font-size:0.8rem;display:flex;justify-content:space-between;margin-bottom:2px;">
+                    <span style="color:var(--text-muted);">Production vs Sales</span><span style="font-weight:700;color:${pc};">${w.prod_ratio}%</span></div>
+                ${bar(w.prod_ratio, pc)}
+                <div style="font-size:0.8rem;display:flex;justify-content:space-between;margin-bottom:2px;">
+                    <span style="color:var(--text-muted);">Dispatch vs Sales</span><span style="font-weight:700;color:${dc};">${w.dispatch_ratio}%</span></div>
+                ${bar(w.dispatch_ratio, dc)}
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;font-size:0.75rem;text-align:center;">
+                    <div style="background:var(--glass);border-radius:10px;padding:8px;"><div style="font-weight:700;color:var(--accent);">${fmt(w.bags_stitched)}</div><div style="color:var(--text-muted);">Stitched</div></div>
+                    <div style="background:var(--glass);border-radius:10px;padding:8px;"><div style="font-weight:700;color:var(--success);">${fmt(w.bags_finished)}</div><div style="color:var(--text-muted);">Finished</div></div>
+                    <div style="background:var(--glass);border-radius:10px;padding:8px;"><div style="font-weight:700;color:var(--warning);">${fmt(w.stitching_wip)}</div><div style="color:var(--text-muted);">Stitch WIP</div></div>
+                    <div style="background:var(--glass);border-radius:10px;padding:8px;"><div style="font-weight:700;color:var(--accent-secondary);">${fmt(w.bags_issued)}</div><div style="color:var(--text-muted);">Issued</div></div>
+                    <div style="background:var(--glass);border-radius:10px;padding:8px;"><div style="font-weight:700;color:#f97316;">${fmt(w.finishing_wip)}</div><div style="color:var(--text-muted);">Finish WIP</div></div>
+                    <div style="background:var(--glass);border-radius:10px;padding:8px;"><div style="font-weight:700;color:var(--success);">${fmt(w.total_dispatch)}</div><div style="color:var(--text-muted);">Dispatched</div></div>
+                </div>`;
+        }
+
+        function switchTab(name, btn) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`section-${name}`).classList.add('active');
+            btn.classList.add('active');
+            if (name === 'corrmatrix' && !corrMatrixData) loadCorrMatrix();
+            if (name === 'revenue') renderRevenue();
+            if (name === 'stitched') renderStitched();
+            if (name === 'newproducts') renderNewProducts();
+        }
+
+        // ── REVENUE BREAKDOWN ────────────────────────────────────────────────────────
+        let _revChartType = 'bar', _revFilter = '';
+        const _revExpanded = new Set();
+        const _revSelectedShops = new Set();
+
+        function _revShopCols() {
+            return revenueData.length
+                ? Object.keys(revenueData[0]).filter(k => k !== 'Category' && k !== 'Bag Type' && k !== 'Total Revenue')
+                : [];
+        }
+
+        function _revActiveCols() {
+            const all = _revShopCols();
+            return _revSelectedShops.size ? all.filter(s => _revSelectedShops.has(s)) : all;
+        }
+
+        function buildRevShopFilter() {
+            const all = _revShopCols();
+            const pills = document.getElementById('revShopPills');
+            pills.innerHTML = all.map(s => {
+                const active = _revSelectedShops.size === 0 || _revSelectedShops.has(s);
+                return `<button class="ctype-btn${active ? ' active' : ''}"
+                    style="font-size:0.7rem;" onclick="toggleRevShop('${s.replace(/'/g,"\\'")}')">
+                    ${s}</button>`;
+            }).join('');
+            const selCount = _revSelectedShops.size;
+            document.getElementById('revTableTitle').textContent =
+                selCount ? `Revenue Breakdown — ${selCount} Shop${selCount>1?'s':''} Selected` : 'Revenue Breakdown — All Shops';
+            const allBtn = document.getElementById('revShopAll');
+            allBtn.classList.toggle('active', selCount === 0);
+        }
+
+        function toggleRevShop(shop) {
+            if (_revSelectedShops.has(shop)) {
+                _revSelectedShops.delete(shop);
+            } else {
+                _revSelectedShops.add(shop);
+            }
+            // If all shops individually selected, treat as "All"
+            if (_revSelectedShops.size === _revShopCols().length) _revSelectedShops.clear();
+            _revRebuild();
+        }
+
+        function revSelectAllShops() {
+            _revSelectedShops.clear();
+            _revRebuild();
+        }
+
+        function _revRebuild() {
+            const active = _revActiveCols();
+            buildRevShopFilter();
+            buildRevKpis(active);
+            buildRevCharts(active);
+            buildRevTable(active);
+        }
+
+        function renderRevenue() {
+            if (!revenueData || !revenueData.length) {
+                document.getElementById('revKpis').innerHTML =
+                    `<div style="color:var(--text-muted);padding:20px;">Revenue Breakdown sheet not loaded — check server console for [REVENUE] log.</div>`;
+                return;
+            }
+            _revSelectedShops.clear();
+            const shopCols = _revShopCols();
+            buildRevShopFilter();
+            buildRevKpis(shopCols);
+            buildRevCharts(shopCols);
+            buildRevTable(shopCols);
+        }
+
+        function _revCatMap(shopCols) {
+            const map = {};
+            revenueData.forEach(r => {
+                const cat = r.Category || 'Other';
+                if (!map[cat]) { map[cat] = { Category: cat, 'Total Revenue': 0 }; shopCols.forEach(s => map[cat][s] = 0); }
+                // Always sum from active shop cols so filtered totals are correct
+                map[cat]['Total Revenue'] += shopCols.reduce((sum, s) => sum + (r[s] || 0), 0);
+                shopCols.forEach(s => map[cat][s] += r[s] || 0);
+            });
+            return map;
+        }
+
+        function buildRevKpis(shopCols) {
+            const fmt        = n => Number(n||0).toLocaleString();
+            const grandTotal = revenueData.reduce((s,r) => s + (r['Total Revenue']||0), 0);
+            const catMap     = _revCatMap(shopCols);
+            const cats       = Object.values(catMap).sort((a,b) => b['Total Revenue'] - a['Total Revenue']);
+            const topCat     = cats[0];
+            const shopTotals = {};
+            shopCols.forEach(s => { shopTotals[s] = revenueData.reduce((sum,r) => sum + (r[s]||0), 0); });
+            const topShop    = Object.entries(shopTotals).sort((a,b) => b[1]-a[1])[0];
+            const topBt      = [...revenueData].sort((a,b) => (b['Total Revenue']||0) - (a['Total Revenue']||0))[0];
+
+            document.getElementById('revKpis').innerHTML = `
+                <div class="kpi-card" style="--card-color:var(--accent)">
+                    <div class="kpi-label">Total Revenue</div>
+                    <div class="kpi-value">${fmt(grandTotal)}</div>
+                    <div class="kpi-trend">${cats.length} categories · ${shopCols.length} shops</div>
+                </div>
+                <div class="kpi-card" style="--card-color:var(--success)">
+                    <div class="kpi-label">Best Selling Category</div>
+                    <div class="kpi-value" style="font-size:1rem">${topCat ? topCat.Category : '—'}</div>
+                    <div class="kpi-trend">${topCat ? fmt(topCat['Total Revenue']) + ' revenue' : ''}</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#10b981">
+                    <div class="kpi-label">Top Bag Type</div>
+                    <div class="kpi-value" style="font-size:0.95rem;word-break:break-word">${topBt ? topBt['Bag Type'] : '—'}</div>
+                    <div class="kpi-trend">${topBt ? topBt.Category + ' · ' + fmt(topBt['Total Revenue']) : ''}</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#06b6d4">
+                    <div class="kpi-label">Top Shop</div>
+                    <div class="kpi-value" style="font-size:1rem">${topShop ? topShop[0] : '—'}</div>
+                    <div class="kpi-trend">${topShop ? fmt(topShop[1]) + ' revenue' : ''}</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#818cf8">
+                    <div class="kpi-label">Avg / Category</div>
+                    <div class="kpi-value">${fmt(Math.round(grandTotal / (cats.length||1)))}</div>
+                    <div class="kpi-trend">Across all shops</div>
+                </div>`;
+        }
+
+        function buildRevCharts(shopCols) {
+            const catMap     = _revCatMap(shopCols);
+            const cats       = Object.values(catMap).sort((a,b) => b['Total Revenue'] - a['Total Revenue']);
+            const labels     = cats.map(c => c.Category);
+            const totals     = cats.map(c => c['Total Revenue']);
+
+            // Chart 1 — revenue by category (toggleable)
+            if (_revChartType === 'doughnut') {
+                updateChart('chartRevCat','doughnut',{
+                    labels,
+                    datasets:[{data:totals, backgroundColor:CC.slice(0,labels.length).map(c=>c+'cc'), borderColor:'#0f172a', borderWidth:2}]
+                },{responsive:true,maintainAspectRatio:false,cutout:'55%',
+                   animation:{duration:480,easing:'easeInOutQuart'},
+                   plugins:{legend:{display:true,position:'right',labels:{color:'#94a3b8',font:{size:10}}},
+                            tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw.toLocaleString()}`}}}});
+            } else {
+                const isL = _revChartType === 'line';
+                updateChart('chartRevCat', isL?'line':'bar', {
+                    labels,
+                    datasets:[{label:'Revenue', data:totals,
+                        backgroundColor: isL ? toAlpha('#38bdf8') : CC.slice(0,labels.length).map(c=>c+'cc'),
+                        borderColor:'#38bdf8', borderWidth:isL?2:0, fill:isL, tension:isL?0.4:0,
+                        pointRadius:isL?4:0, borderRadius:isL?0:5}]
+                }, BOPTS());
+            }
+
+            // Chart 2 — revenue by shop (horizontal bar)
+            const shopTotals  = {};
+            shopCols.forEach(s => { shopTotals[s] = revenueData.reduce((sum,r) => sum+(r[s]||0), 0); });
+            const shopsSorted = Object.entries(shopTotals).sort((a,b) => b[1]-a[1]);
+            updateChart('chartRevStockSales','bar',{
+                labels: shopsSorted.map(([s])=>s),
+                datasets:[{label:'Revenue', data:shopsSorted.map(([,v])=>v),
+                    backgroundColor:CC.slice(0,shopsSorted.length).map(c=>c+'cc'), borderRadius:4}]
+            },{...BOPTS(), indexAxis:'y',
+               scales:{x:{grid:{color:'rgba(255,255,255,0.05)'},ticks:{color:'#94a3b8'}},
+                       y:{grid:{display:false},ticks:{color:'#94a3b8',font:{size:10}}}}});
+        }
+
+        function setRevChart(type, btn) {
+            _revChartType = type;
+            document.querySelectorAll('#revChartBtn1,#revChartBtn2,#revChartBtn3').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            buildRevCharts(_revActiveCols());
+        }
+
+        function buildRevTable(shopCols) {
+            const thead = document.querySelector('#section-revenue table thead tr');
+            thead.innerHTML = `<th>Category / Bag Type</th>` +
+                shopCols.map(s=>`<th>${s}</th>`).join('') +
+                `<th style="color:var(--accent)">Total Revenue</th>`;
+
+            const q       = _revFilter.toLowerCase();
+            const fmt     = n => (n||0) ? Number(n).toLocaleString() : '—';
+            const catMap  = _revCatMap(shopCols);
+            // Best selling category for badge
+            const bestCat = Object.values(catMap).sort((a,b)=>b['Total Revenue']-a['Total Revenue'])[0]?.Category;
+
+            const cats = Object.values(catMap)
+                .filter(c => !q || c.Category.toLowerCase().includes(q) ||
+                    revenueData.some(r=>r.Category===c.Category&&(r['Bag Type']||'').toLowerCase().includes(q)))
+                .sort((a,b)=>b['Total Revenue']-a['Total Revenue']);
+
+            let html = '';
+            cats.forEach((c, ci) => {
+                const cat    = c.Category;
+                const open   = _revExpanded.has(cat);
+                const bagRows= revenueData.filter(r=>r.Category===cat)
+                                          .sort((a,b)=>(b['Total Revenue']||0)-(a['Total Revenue']||0));
+                const isBest = cat === bestCat;
+                html += `<tr class="corr-cat-row" onclick="toggleRevCat('${cat.replace(/'/g,"\\'")}')">
+                    <td style="font-weight:700;white-space:nowrap;">
+                        <span style="color:var(--accent);margin-right:5px;font-size:0.8rem;">${open?'▾':'▸'}</span>
+                        ${cat}
+                        ${isBest?`<span style="margin-left:7px;font-size:0.65rem;background:rgba(16,185,129,0.18);color:var(--success);border-radius:4px;padding:1px 6px;">★ Best</span>`:''}
+                        <span style="font-size:0.68rem;color:var(--text-muted);margin-left:5px;">${bagRows.length} bag type${bagRows.length!==1?'s':''}</span>
+                    </td>
+                    ${shopCols.map(s=>`<td>${fmt(c[s])}</td>`).join('')}
+                    <td style="font-weight:700;color:var(--accent)">${fmt(c['Total Revenue'])}</td>
+                </tr>`;
+                if (open) {
+                    bagRows.forEach(r => {
+                        const rowTotal = shopCols.reduce((sum, s) => sum + (r[s] || 0), 0);
+                        html += `<tr class="corr-bt-row">
+                            <td style="padding-left:30px;color:var(--text-muted);">↳ ${r['Bag Type']||'—'}</td>
+                            ${shopCols.map(s=>`<td>${fmt(r[s])}</td>`).join('')}
+                            <td style="font-weight:600;color:var(--accent)">${fmt(rowTotal)}</td>
+                        </tr>`;
+                    });
+                }
+            });
+            document.getElementById('tbodyRev').innerHTML = html ||
+                `<tr><td colspan="${shopCols.length+2}" style="text-align:center;color:var(--text-muted);padding:20px;">No matching results</td></tr>`;
+        }
+
+        function toggleRevCat(cat) {
+            _revExpanded.has(cat) ? _revExpanded.delete(cat) : _revExpanded.add(cat);
+            buildRevTable(_revActiveCols());
+        }
+
+        function filterRevTable(val) {
+            _revFilter = val.trim();
+            buildRevTable(_revActiveCols());
+        }
+
+        function exportRevExcel() {
+            if (!revenueData.length) return;
+            const shopCols = _revActiveCols();
+            const headers  = ['Category', 'Bag Type', ...shopCols, 'Total Revenue'];
+            const rows     = [headers];
+            const catMap   = _revCatMap(shopCols);
+            Object.values(catMap).sort((a,b)=>b['Total Revenue']-a['Total Revenue']).forEach(c => {
+                rows.push([c.Category, '(Category Total)', ...shopCols.map(s=>c[s]||0), c['Total Revenue']||0]);
+                revenueData.filter(r=>r.Category===c.Category)
+                            .sort((a,b)=>(b['Total Revenue']||0)-(a['Total Revenue']||0))
+                            .forEach(r => rows.push([r.Category, r['Bag Type']||'', ...shopCols.map(s=>r[s]||0), r['Total Revenue']||0]));
+            });
+            const csv = rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+            const a   = document.createElement('a');
+            a.href    = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+            a.download = `Revenue_Breakdown_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+        }
+
+        // ── BAGS STITCHED SUMMARY ────────────────────────────────────────────────
+        let _stChartType = 'bar', _stFilter = '';
+        const _stExpanded = new Set();
+        let _stChartComplexity = null, _stChartCategory = null;
+
+        function renderStitched() {
+            if (!stitchedData || !stitchedData.length) {
+                document.getElementById('stitchedKpis').innerHTML =
+                    `<div style="color:var(--text-muted);padding:20px;">Bags Stitched data not available — ensure WAREHOUSE sheet has Complexity (col J) and Bags stitched (col H).</div>`;
+                return;
+            }
+            buildStitchedKpis();
+            buildStitchedCharts();
+            buildStitchedTable();
+        }
+
+        function _stComplexityMap() {
+            const map = {};
+            stitchedData.forEach(r => {
+                const cx = r.Complexity || 'Unspecified';
+                if (!map[cx]) map[cx] = { Complexity: cx, total: 0, categories: {} };
+                map[cx].total += (r['Bags stitched'] || 0);
+                const cat = r.Category || 'Other';
+                if (!map[cx].categories[cat]) map[cx].categories[cat] = 0;
+                map[cx].categories[cat] += (r['Bags stitched'] || 0);
+            });
+            return map;
+        }
+
+        function _stCategoryMap() {
+            const map = {};
+            stitchedData.forEach(r => {
+                const cat = r.Category || 'Other';
+                if (!map[cat]) map[cat] = { Category: cat, total: 0 };
+                map[cat].total += (r['Bags stitched'] || 0);
+            });
+            return map;
+        }
+
+        function buildStitchedKpis() {
+            const fmt = n => Number(n||0).toLocaleString();
+            const grandTotal = stitchedData.reduce((s,r) => s + (r['Bags stitched']||0), 0);
+            const cxMap = _stComplexityMap();
+            const cxList = Object.values(cxMap).sort((a,b) => b.total - a.total);
+            const topCx = cxList[0];
+            const catMap = _stCategoryMap();
+            const catList = Object.values(catMap).sort((a,b) => b.total - a.total);
+            const topCat = catList[0];
+            const numComplexities = cxList.length;
+
+            document.getElementById('stitchedKpis').innerHTML = `
+                <div class="kpi-card">
+                    <div class="kpi-label">Total Bags Stitched</div>
+                    <div class="kpi-value" style="color:var(--accent);">${fmt(grandTotal)}</div>
+                    <div class="kpi-sub">${numComplexities} complexity tier${numComplexities!==1?'s':''}</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Top Complexity Tier</div>
+                    <div class="kpi-value" style="color:var(--success);">${topCx ? topCx.Complexity : '—'}</div>
+                    <div class="kpi-sub">${topCx ? fmt(topCx.total) + ' bags' : ''}</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Top Category</div>
+                    <div class="kpi-value" style="color:var(--accent-secondary);">${topCat ? topCat.Category : '—'}</div>
+                    <div class="kpi-sub">${topCat ? fmt(topCat.total) + ' bags' : ''}</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-label">Categories Tracked</div>
+                    <div class="kpi-value" style="color:var(--warning);">${catList.length}</div>
+                    <div class="kpi-sub">across all complexity tiers</div>
+                </div>`;
+        }
+
+        function buildStitchedCharts() {
+            const COLOURS = ['#38bdf8','#818cf8','#10b981','#f59e0b','#ef4444','#a78bfa','#34d399','#fbbf24','#f87171','#60a5fa'];
+            const cxMap  = _stComplexityMap();
+            const cxList = Object.values(cxMap).sort((a,b) => b.total - a.total);
+            const catMap = _stCategoryMap();
+            const catList = Object.values(catMap).sort((a,b) => b.total - a.total);
+
+            // Chart 1 — complexity
+            if (_stChartComplexity) _stChartComplexity.destroy();
+            const ctx1 = document.getElementById('chartStitchedComplexity').getContext('2d');
+            const labels1 = cxList.map(c => c.Complexity);
+            const vals1   = cxList.map(c => c.total);
+            const isDonut = _stChartType === 'doughnut';
+            _stChartComplexity = new Chart(ctx1, {
+                type: _stChartType,
+                data: {
+                    labels: labels1,
+                    datasets: [{
+                        label: 'Bags Stitched',
+                        data: vals1,
+                        backgroundColor: isDonut ? COLOURS.slice(0, labels1.length) : COLOURS[0],
+                        borderColor: isDonut ? 'transparent' : COLOURS[0],
+                        borderRadius: isDonut ? 0 : 6,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: isDonut, labels: { color: '#94a3b8', font: { size: 11 } } } },
+                    scales: isDonut ? {} : {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+
+            // Chart 2 — category horizontal bar
+            if (_stChartCategory) _stChartCategory.destroy();
+            const ctx2 = document.getElementById('chartStitchedCategory').getContext('2d');
+            const labels2 = catList.map(c => c.Category);
+            const vals2   = catList.map(c => c.total);
+            _stChartCategory = new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: labels2,
+                    datasets: [{
+                        label: 'Bags Stitched',
+                        data: vals2,
+                        backgroundColor: COLOURS[1],
+                        borderColor: COLOURS[1],
+                        borderRadius: 6,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+
+        function buildStitchedTable() {
+            const q = _stFilter.toLowerCase();
+            const grandTotal = stitchedData.reduce((s,r) => s + (r['Bags stitched']||0), 0);
+            const fmt = n => Number(n||0).toLocaleString();
+            const pct = n => grandTotal > 0 ? (n / grandTotal * 100).toFixed(1) + '%' : '0%';
+
+            const cxMap = _stComplexityMap();
+            const cxList = Object.values(cxMap).sort((a,b) => b.total - a.total)
+                .filter(cx => !q || cx.Complexity.toLowerCase().includes(q) ||
+                    Object.keys(cx.categories).some(cat => cat.toLowerCase().includes(q)) ||
+                    stitchedData.some(r => r.Complexity === cx.Complexity && ((r['Bag Type']||'').toLowerCase().includes(q))));
+
+            let html = '';
+            cxList.forEach(cx => {
+                const open = _stExpanded.has(cx.Complexity);
+                html += `<tr class="corr-cat-row" onclick="toggleStitchedCx('${cx.Complexity.replace(/'/g,"\\'")}')">
+                    <td style="font-weight:700;white-space:nowrap;">
+                        <span style="color:var(--accent);margin-right:5px;font-size:0.8rem;">${open?'▾':'▸'}</span>
+                        ${cx.Complexity}
+                        <span style="font-size:0.68rem;color:var(--text-muted);margin-left:5px;">${Object.keys(cx.categories).length} categor${Object.keys(cx.categories).length!==1?'ies':'y'}</span>
+                    </td>
+                    <td style="text-align:right;font-weight:700;color:var(--accent);">${fmt(cx.total)}</td>
+                    <td style="text-align:right;color:var(--text-muted);">${pct(cx.total)}</td>
+                </tr>`;
+                if (open) {
+                    // Group by category, then bag type
+                    const catEntries = Object.entries(cx.categories).sort((a,b) => b[1]-a[1]);
+                    catEntries.forEach(([cat, catTotal]) => {
+                        const bagRows = stitchedData
+                            .filter(r => r.Complexity === cx.Complexity && (r.Category || 'Other') === cat)
+                            .sort((a,b) => (b['Bags stitched']||0) - (a['Bags stitched']||0));
+                        html += `<tr class="corr-bt-row" onclick="toggleStitchedCat('${cx.Complexity.replace(/'/g,"\\'")}','${cat.replace(/'/g,"\\'")}')">
+                            <td style="padding-left:24px;font-weight:600;">
+                                <span style="color:var(--accent-secondary);margin-right:5px;font-size:0.75rem;">${_stCatExpanded(cx.Complexity,cat)?'▾':'▸'}</span>
+                                ${cat}
+                                <span style="font-size:0.65rem;color:var(--text-muted);margin-left:4px;">${bagRows.length} bag type${bagRows.length!==1?'s':''}</span>
+                            </td>
+                            <td style="text-align:right;font-weight:600;color:var(--accent-secondary);">${fmt(catTotal)}</td>
+                            <td style="text-align:right;color:var(--text-muted);">${pct(catTotal)}</td>
+                        </tr>`;
+                        if (_stCatExpanded(cx.Complexity, cat)) {
+                            bagRows.forEach(r => {
+                                html += `<tr>
+                                    <td style="padding-left:48px;color:var(--text-muted);">↳ ${r['Bag Type']||'—'}</td>
+                                    <td style="text-align:right;">${fmt(r['Bags stitched']||0)}</td>
+                                    <td style="text-align:right;color:var(--text-muted);">${pct(r['Bags stitched']||0)}</td>
+                                </tr>`;
+                            });
+                        }
+                    });
+                }
+            });
+            document.getElementById('tbodyStitched').innerHTML = html ||
+                `<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px;">No matching results</td></tr>`;
+        }
+
+        const _stCatExpandedSet = new Set();
+        function _stCatExpanded(cx, cat) { return _stCatExpandedSet.has(`${cx}|||${cat}`); }
+
+        function toggleStitchedCx(cx) {
+            _stExpanded.has(cx) ? _stExpanded.delete(cx) : _stExpanded.add(cx);
+            buildStitchedTable();
+        }
+
+        function toggleStitchedCat(cx, cat) {
+            const key = `${cx}|||${cat}`;
+            _stCatExpandedSet.has(key) ? _stCatExpandedSet.delete(key) : _stCatExpandedSet.add(key);
+            buildStitchedTable();
+        }
+
+        function filterStitchedTable(val) {
+            _stFilter = val.trim();
+            buildStitchedTable();
+        }
+
+        function setStitchedChart(type, btn) {
+            _stChartType = type;
+            document.querySelectorAll('#stChartBtn1,#stChartBtn2').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            buildStitchedCharts();
+        }
+
+        function exportStitchedExcel() {
+            if (!stitchedData.length) return;
+            const headers = ['Complexity', 'Category', 'Bag Type', 'Bags Stitched'];
+            const rows = [headers];
+            const cxMap = _stComplexityMap();
+            Object.values(cxMap).sort((a,b) => b.total - a.total).forEach(cx => {
+                rows.push([cx.Complexity, '(All Categories)', '', cx.total]);
+                Object.entries(cx.categories).sort((a,b) => b[1]-a[1]).forEach(([cat, catTotal]) => {
+                    rows.push([cx.Complexity, cat, '(Category Total)', catTotal]);
+                    stitchedData.filter(r => r.Complexity === cx.Complexity && (r.Category||'Other') === cat)
+                        .sort((a,b) => (b['Bags stitched']||0) - (a['Bags stitched']||0))
+                        .forEach(r => rows.push([cx.Complexity, cat, r['Bag Type']||'', r['Bags stitched']||0]));
+                });
+            });
+            const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+            a.download = `Bags_Stitched_Summary_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+        }
+
+        function refreshData() { document.getElementById('loader').style.display = 'flex'; loadDashboard(); }
+
+        function exportExcel() {
+            const wb = XLSX.utils.table_to_book(document.getElementById('tblMaster'));
+            XLSX.writeFile(wb, 'Denri_Operations_Master.xlsx');
+        }
+
+        // ── CORRELATION MATRIX ───────────────────────────────────────────────────────
+        const CORR_SHORT = {
+            'Total Sales': 'Sales', 'Total Stock': 'Shop Stock', 'Total Warehouse Stock': 'Warehouse',
+            'Total Dispatch': 'Dispatch', 'Total Marketing': 'Marketing', 'Bags in cut store': 'Cut Store',
+            'Stitching WIP': 'Stitch WIP', 'Bags issued for stitching': 'Issued', 'Bags stitched': 'Stitched',
+            'Monthly sales target': 'Mo. Target', 'Actual sales': 'Mo. Sales', 'Deficit': 'Deficit',
+        };
+        const shortL = l => CORR_SHORT[l] || l;
+
+        function corrColor(r) {
+            if (r === null || r === undefined || isNaN(r)) return '#1e293b';
+            r = Math.max(-1, Math.min(1, r));
+            const dark = [30, 41, 59], green = [16, 185, 129], red = [239, 68, 68];
+            const [fr, to, t] = r >= 0 ? [dark, green, r] : [dark, red, -r];
+            return `rgb(${Math.round(fr[0] + (to[0] - fr[0]) * t)},${Math.round(fr[1] + (to[1] - fr[1]) * t)},${Math.round(fr[2] + (to[2] - fr[2]) * t)})`;
+        }
+
+        async function loadCorrMatrix() {
+            try {
+                const res = await fetch('/api/correlation-matrix');
+                corrMatrixData = await res.json();
+                if (corrMatrixData.error) {
+                    document.getElementById('cmLoader').innerHTML = `<p style="color:var(--danger);">${corrMatrixData.error}</p>`;
+                    return;
+                }
+                selectedVars = [...corrMatrixData.labels];
+                document.getElementById('cmLoader').style.display = 'none';
+                document.getElementById('cmContent').style.display = 'block';
+                renderCmStats();
+                renderVarPills();
+                renderHeatmap();
+                renderCmInsights();
+                renderCmTable();
+            } catch (e) {
+                document.getElementById('cmLoader').innerHTML = `<p style="color:var(--danger);">Failed to load: ${e.message}</p>`;
+            }
+        }
+
+        function renderCmStats() {
+            const d = corrMatrixData;
+            document.getElementById('cmStats').innerHTML = [
+                ['Variables', d.n_variables, 'var(--accent)'],
+                ['Observations', d.n_observations, 'var(--success)'],
+                ['Strong Pairs', d.n_strong, 'var(--warning)'],
+                ['Moderate Pairs', d.n_moderate, 'var(--accent-secondary)'],
+            ].map(([lbl, val, color]) => `
+        <div class="kpi-card" style="--card-color:${color};flex:1;min-width:150px;">
+            <div class="kpi-label">${lbl}</div>
+            <div class="kpi-value" style="font-size:1.6rem;">${val}</div>
+            <div class="kpi-trend">Pearson r analysis</div>
+        </div>`).join('');
+        }
+
+        function renderVarPills() {
+            document.getElementById('varPills').innerHTML = corrMatrixData.labels.map(l => `
+        <span class="var-pill ${selectedVars.includes(l) ? 'active' : ''}" onclick="toggleVar('${l}',this)">${shortL(l)}</span>
+    `).join('');
+        }
+
+        function toggleVar(varName, el) {
+            const idx = selectedVars.indexOf(varName);
+            if (idx !== -1) {
+                if (selectedVars.length <= 2) return;
+                selectedVars.splice(idx, 1);
+                el.classList.remove('active');
+            } else {
+                selectedVars.push(varName);
+                el.classList.add('active');
+            }
+            renderHeatmap();
+            renderCmTable();
+        }
+
+        function selectAllCorrVars(all) {
+            selectedVars = all ? [...corrMatrixData.labels] : corrMatrixData.labels.slice(0, 3);
+            renderVarPills();
+            renderHeatmap();
+            renderCmTable();
+        }
+
+        function renderHeatmap() {
+            const all = corrMatrixData.labels;
+            const sel = all.filter(l => selectedVars.includes(l));
+            const idx = sel.map(l => all.indexOf(l));
+
+            let html = '<table style="border-collapse:collapse;">';
+            html += '<tr><td></td>';
+            sel.forEach(l => html += `<th class="corr-col-hdr" title="${l}">${shortL(l)}</th>`);
+            html += '</tr>';
+
+            idx.forEach((ri, rowI) => {
+                html += `<tr><td class="corr-row-label" title="${sel[rowI]}">${shortL(sel[rowI])}</td>`;
+                idx.forEach((ci, colI) => {
+                    const r = corrMatrixData.matrix[ri][ci];
+                    if (ri === ci) {
+                        html += `<td class="corr-cell" style="background:#1e293b;color:var(--text-muted);">—</td>`;
+                    } else {
+                        const bg = corrColor(r);
+                        const abs = r !== null ? Math.abs(r) : 0;
+                        const tc = abs > 0.4 ? '#fff' : 'rgba(255,255,255,0.5)';
+                        const fw = abs >= 0.7 ? 'font-weight:800;' : '';
+                        const brd = abs >= 0.7 ? 'outline:2px solid rgba(255,255,255,0.25);outline-offset:-2px;' : '';
+                        html += `<td class="corr-cell" style="background:${bg};color:${tc};${fw}${brd}" title="${sel[rowI]} ↔ ${sel[colI]}: r = ${r}">${r !== null ? r.toFixed(2) : '—'}</td>`;
+                    }
+                });
+                html += '</tr>';
+            });
+            html += '</table>';
+            document.getElementById('heatmapWrap').innerHTML = html;
+        }
+
+        const CORR_BIZ = {
+            'Total Sales|Total Dispatch': 'Dispatch volumes track sales closely — your supply chain is demand-responsive. Consider automated reorder triggers for top shops.',
+            'Total Sales|Total Stock': 'Higher-selling products carry more stock. Confirm this is intentional allocation, not over-stocking on already-moving items.',
+            'Total Sales|Actual sales': 'Weekly operational sales align with monthly reported figures — data integrity across sheets is strong.',
+            'Total Sales|Total Marketing': 'Marketing spend is converting to sales. Invest more in channels tied to high-velocity categories.',
+            'Total Sales|Deficit': 'Higher weekly sales reduce the monthly target deficit. Each unit sold closes the performance gap.',
+            'Total Sales|Stitching WIP': 'Production (stitching) pipeline is building inventory for fast-selling SKUs — good demand-supply alignment.',
+            'Total Stock|Total Warehouse Stock': 'Shop and warehouse stock levels rise together — centralised replenishment is working. Watch for overstocking in low-demand shops.',
+            'Total Dispatch|Total Warehouse Stock': 'Warehouse stock drives dispatch; pre-emptive restocking from the warehouse reduces stockout risk at the shop level.',
+            'Stitching WIP|Bags issued for stitching': 'WIP rises proportionally as more bags are cut and issued — production pipeline is healthy and sequential.',
+            'Bags issued for stitching|Bags stitched': 'Cut bags are flowing through to finished goods at a consistent rate. Monitor this ratio for bottlenecks.',
+            'Monthly sales target|Deficit': 'Higher targets carry larger deficits, suggesting some bag types may have aspirational rather than realistic targets.',
+            'Actual sales|Deficit': 'Each unit of monthly sales directly reduces the deficit. Doubling down on high-sales categories is the fastest path to target achievement.',
+            'Total Marketing|Total Stock': 'Marketing-heavy SKUs carry higher stock levels. Ensure this spend is driving sell-through, not just awareness.',
+        };
+
+        function getCorrBiz(a, b, r) {
+            if (CORR_BIZ[`${a}|${b}`]) return CORR_BIZ[`${a}|${b}`];
+            if (CORR_BIZ[`${b}|${a}`]) return CORR_BIZ[`${b}|${a}`];
+            if (r < -0.7) return 'Strong inverse relationship — as one metric rises, the other falls. Investigate whether this is a structural trade-off or a data anomaly.';
+            if (r > 0.9) return 'Near-perfect co-movement. These metrics share the same underlying operational driver.';
+            if (r > 0.7) return 'Strong positive co-movement. Managing one of these variables will likely move the other.';
+            return 'Moderate co-movement detected. Worth monitoring as business volumes scale.';
+        }
+
+        function renderCmInsights() {
+            const ins = corrMatrixData.insights || [];
+            if (!ins.length) {
+                document.getElementById('cmInsights').innerHTML = '<p style="color:var(--text-muted);padding:12px;">No correlations ≥ 0.50 found.</p>';
+                return;
+            }
+            document.getElementById('cmInsights').innerHTML = ins.map(i => {
+                const isPos = i.r > 0;
+                const color = isPos ? 'var(--success)' : 'var(--danger)';
+                const bg = isPos ? 'rgba(16,185,129,0.06)' : 'rgba(239,68,68,0.06)';
+                const brd = i.strength === 'moderate' ? 'var(--warning)' : color;
+                const arrow = isPos ? '▲' : '▼';
+                const pct = Math.round(i.r2 * 100);
+                const badge = i.strength === 'very strong' ? '🔴 Very Strong' : (i.strength === 'strong' ? '🟠 Strong' : '🟡 Moderate');
+                return `<div style="padding:12px 14px;border-radius:10px;background:${bg};border-left:3px solid ${brd};margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px;">
+                <span style="font-weight:700;font-size:0.82rem;">${shortL(i.var_a)} ${arrow} ${shortL(i.var_b)}</span>
+                <span style="color:${color};font-weight:900;font-size:1.05rem;white-space:nowrap;">r = ${i.r}</span>
+            </div>
+            <div style="font-size:0.68rem;color:var(--text-muted);margin-bottom:6px;">${badge} &nbsp;${i.direction} &nbsp;·&nbsp; ${pct}% shared variance (R² = ${i.r2})</div>
+            <div style="background:rgba(255,255,255,0.06);border-radius:4px;height:4px;margin-bottom:7px;">
+                <div style="background:${brd};height:4px;border-radius:4px;width:${pct}%;transition:width 0.4s;"></div>
+            </div>
+            <div style="font-size:0.7rem;color:var(--text-muted);line-height:1.55;">${getCorrBiz(i.var_a, i.var_b, i.r)}</div>
+        </div>`;
+            }).join('');
+        }
+
+        function renderCmTable() {
+            const all = corrMatrixData.labels;
+            const sel = all.filter(l => selectedVars.includes(l));
+            const idx = sel.map(l => all.indexOf(l));
+
+            let html = '<table style="font-size:0.75rem;width:100%;border-collapse:collapse;">';
+            html += '<thead><tr><th style="padding:10px 14px;border-bottom:1px solid var(--glass-border);text-align:left;color:var(--text-muted);">Variable</th>';
+            sel.forEach(l => html += `<th style="padding:10px 8px;border-bottom:1px solid var(--glass-border);color:var(--text-muted);text-align:center;white-space:nowrap;">${shortL(l)}</th>`);
+            html += '</tr></thead><tbody>';
+
+            idx.forEach((ri, rowI) => {
+                html += `<tr><td style="padding:10px 14px;font-weight:600;border-bottom:1px solid var(--glass-border);white-space:nowrap;">${shortL(sel[rowI])}</td>`;
+                idx.forEach(ci => {
+                    const r = corrMatrixData.matrix[ri][ci];
+                    const diag = ri === ci;
+                    if (diag) {
+                        html += `<td style="padding:10px 8px;text-align:center;border-bottom:1px solid var(--glass-border);color:var(--text-muted);">1.000</td>`;
+                    } else {
+                        const abs = r !== null ? Math.abs(r) : 0;
+                        const clr = r !== null ? (r > 0 ? 'var(--success)' : 'var(--danger)') : 'var(--text-muted)';
+                        const fw = abs >= 0.7 ? 'font-weight:700;' : '';
+                        const bg = abs >= 0.7 ? (r > 0 ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)') : '';
+                        html += `<td style="padding:10px 8px;text-align:center;border-bottom:1px solid var(--glass-border);${fw}${abs >= 0.5 ? `color:${clr};` : ''}background:${bg};">${r !== null ? r.toFixed(3) : '—'}</td>`;
+                    }
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            document.getElementById('cmTable').innerHTML = html;
+        }
+
+        window.onload = loadDashboard;
+
+        // ── NEW PRODUCTS ─────────────────────────────────────────────────────────────
+        let _npPipelineChart = null, _npSalesChart = null, _npShopsChart = null;
+
+        function renderNewProducts() {
+            buildNpChampions();
+            buildNpPipelineChart();
+            buildNpSalesChart();
+            buildNpShopsChart();
+            buildNpColToggles();
+            buildNpHead();
+            buildNpTable();
+            _svsPopulateFilters();
+            renderSvs();
+        }
+
+        function buildNpChampions() {
+            const s = newProductsSummary;
+            const fmt = n => Number(n || 0).toLocaleString();
+            const champions = [
+                { label: 'Best Product',  name: s.best_product?.name  || '—', sub: `${fmt(s.best_product?.sales)} weekly units`,  color: '#e879f9' },
+                { label: 'Best Category', name: s.best_category?.name || '—', sub: `${fmt(s.best_category?.sales)} weekly units`, color: '#38bdf8' },
+                { label: 'Best Shop',     name: s.best_shop?.name     || '—', sub: `${fmt(s.best_shop?.sales)} weekly units`,     color: '#10b981' },
+                { label: 'Best Region',   name: s.best_region?.name   || '—', sub: `${fmt(s.best_region?.sales)} weekly units`,   color: '#f59e0b' },
+            ];
+            document.getElementById('npChampions').innerHTML = champions.map(c => `
+                <div class="kpi-card" style="--card-color:${c.color}">
+                    <div class="kpi-label">${c.label}</div>
+                    <div class="kpi-value" style="font-size:1.1rem;line-height:1.2;">${c.name}</div>
+                    <div class="kpi-trend">${c.sub}</div>
+                </div>`).join('');
+        }
+
+        function buildNpPipelineChart() {
+            const s = newProductsSummary;
+            const labels  = ['Cut in Store', 'Stitching WIP', 'Finishing WIP', 'Warehouse', 'Shop Stock'];
+            const vals    = [s.cut_in_store || 0, s.stitching_wip || 0, s.finishing_wip || 0, s.warehouse || 0, s.total_stock || 0];
+            const colors  = ['#818cf8','#f59e0b','#f97316','#10b981','#38bdf8'];
+            if (_npPipelineChart) _npPipelineChart.destroy();
+            _npPipelineChart = new Chart(document.getElementById('chartNpPipeline').getContext('2d'), {
+                type: 'bar',
+                data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderRadius: 6 }] },
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.raw.toLocaleString() + ' units' } } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#f8fafc', font: { weight: '600' } }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function buildNpSalesChart() {
+            const sorted = [...newProductsData].sort((a, b) => b.total_sales - a.total_sales).slice(0, 20);
+            const COLS = ['#e879f9','#38bdf8','#10b981','#f59e0b','#818cf8','#f97316','#06b6d4','#a78bfa','#34d399','#fbbf24',
+                          '#f87171','#60a5fa','#4ade80','#fb923c','#c084fc','#2dd4bf','#facc15','#818cf8','#f43f5e','#84cc16'];
+            if (_npSalesChart) _npSalesChart.destroy();
+            _npSalesChart = new Chart(document.getElementById('chartNpSales').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(r => r.product),
+                    datasets: [{ label: 'Weekly Sales', data: sorted.map(r => r.total_sales), backgroundColor: COLS }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8', maxRotation: 45 }, grid: { display: false } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+
+        function buildNpShopsChart() {
+            const shops = (newProductsSummary.shop_breakdown || []).filter(s => s.sales > 0).slice(0, 15);
+            const COLS = ['#38bdf8','#10b981','#f59e0b','#818cf8','#e879f9','#f97316','#06b6d4','#a78bfa','#34d399','#fbbf24','#f87171','#60a5fa','#4ade80','#fb923c','#c084fc'];
+            if (_npShopsChart) _npShopsChart.destroy();
+            _npShopsChart = new Chart(document.getElementById('chartNpShops').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: shops.map(s => s.shop),
+                    datasets: [{ data: shops.map(s => s.sales), backgroundColor: COLS, borderWidth: 2, borderColor: '#1e293b' }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#f8fafc', boxWidth: 12, padding: 10, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()}` } }
+                    }
+                }
+            });
+        }
+
+        // Column config for the pipeline table — all visible by default
+        const NP_COLS = [
+            { key: 'total_sales',   label: 'Weekly Sales', color: '#e879f9', align: 'right', bar: false },
+            { key: 'total_dispatch',label: 'Dispatch',     color: '#94a3b8', align: 'right', bar: false },
+            { key: 'cut_in_store',  label: 'Cut Store',    color: '#818cf8', align: 'right', bar: true  },
+            { key: 'stitching_wip', label: 'Stitch WIP',   color: '#f59e0b', align: 'right', bar: true  },
+            { key: 'finishing_wip', label: 'Finish WIP',   color: '#f97316', align: 'right', bar: true  },
+            { key: 'warehouse',     label: 'Warehouse',    color: '#10b981', align: 'right', bar: true  },
+            { key: 'shop_stores',   label: 'Shop Stock',   color: '#38bdf8', align: 'right', bar: true  },
+            { key: 'marketing',     label: 'Marketing',    color: '#06b6d4', align: 'right', bar: false },
+            { key: 'revenue',       label: 'Revenue',      color: '#a78bfa', align: 'right', bar: false },
+        ];
+        NP_COLS.forEach(c => c.visible = true);
+
+        function buildNpColToggles() {
+            document.getElementById('npColToggles').innerHTML =
+                '<span style="font-size:0.72rem;color:var(--text-muted);font-weight:600;align-self:center;margin-right:4px;">Show columns:</span>' +
+                NP_COLS.map(c => `
+                    <button onclick="toggleNpCol('${c.key}')" id="npToggle_${c.key}"
+                        style="padding:4px 12px;border-radius:20px;border:1px solid ${c.color};
+                               background:${c.color};color:#fff;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all .2s;">
+                        ${c.label}
+                    </button>`).join('');
+        }
+
+        function toggleNpCol(key) {
+            const col = NP_COLS.find(c => c.key === key);
+            if (!col) return;
+            col.visible = !col.visible;
+            const btn = document.getElementById(`npToggle_${key}`);
+            btn.style.background    = col.visible ? col.color : 'transparent';
+            btn.style.color         = col.visible ? '#fff'    : col.color;
+            buildNpHead();
+            buildNpTable();
+        }
+
+        function buildNpHead() {
+            const vis = NP_COLS.filter(c => c.visible);
+            document.getElementById('npThead').innerHTML = `<tr>
+                <th onclick="sortNp('product')">Product ↕</th>
+                <th onclick="sortNp('category')">Category ↕</th>
+                ${vis.map(c => `<th onclick="sortNp('${c.key}')" style="text-align:right;">${c.label} ↕</th>`).join('')}
+            </tr>`;
+        }
+
+        function buildNpTable() {
+            const fmt = n => Number(n || 0).toLocaleString();
+            const q = _npFilter.toLowerCase();
+            let rows = newProductsData.filter(r =>
+                !q || r.product.toLowerCase().includes(q) || (r.category || '').toLowerCase().includes(q)
+            );
+            rows = [...rows].sort((a, b) => {
+                const va = a[_npSortCol] ?? 0, vb = b[_npSortCol] ?? 0;
+                if (typeof va === 'string') return _npSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+                return _npSortAsc ? va - vb : vb - va;
+            });
+            const vis = NP_COLS.filter(c => c.visible);
+            const tbody = document.getElementById('tbodyNp');
+            if (!rows.length) {
+                tbody.innerHTML = `<tr><td colspan="${2 + vis.length}" style="text-align:center;padding:30px;color:var(--text-muted);">No new products data available.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = rows.map(r => {
+                const valCells = vis.map(c => {
+                    const v = r[c.key] || 0;
+                    if (c.bar) {
+                        const max = Math.max(...newProductsData.map(d => d[c.key] || 0), 1);
+                        const pct = Math.min(100, Math.round((v / max) * 100));
+                        return `<td style="text-align:right;padding:10px 14px;">
+                            <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+                                <span style="font-weight:600;color:${c.color};">${fmt(v)}</span>
+                                <div style="width:40px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+                                    <div style="width:${pct}%;height:100%;background:${c.color};border-radius:3px;"></div>
+                                </div>
+                            </div></td>`;
+                    }
+                    return `<td style="text-align:right;padding:10px 14px;font-weight:${c.key==='total_sales'?'700':'500'};color:${c.color};">${fmt(v)}</td>`;
+                }).join('');
+                return `<tr>
+                    <td style="padding:10px 14px;font-weight:600;">${r.product}</td>
+                    <td style="padding:10px 14px;color:var(--text-muted);">${r.category || '—'}</td>
+                    ${valCells}
+                </tr>`;
+            }).join('');
+        }
+
+        function sortNp(col) {
+            if (_npSortCol === col) _npSortAsc = !_npSortAsc;
+            else { _npSortCol = col; _npSortAsc = false; }
+            buildNpTable();
+        }
+
+        function filterNpTable(q) { _npFilter = q; buildNpTable(); }
+
+        function exportNpExcel() {
+            const vis = NP_COLS.filter(c => c.visible);
+            const headers = ['Product', 'Category', ...vis.map(c => c.label)];
+            const rows = [headers, ...newProductsData.map(r => [
+                r.product, r.category, ...vis.map(c => r[c.key] || 0)
+            ])];
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'New Products');
+            XLSX.writeFile(wb, 'new_products_pipeline.xlsx');
+        }
+
+        // ── SALES VS SHOP STOCK ALIGNMENT ────────────────────────────────────────────
+        let _svsChart = null;
+
+        function _svsFiltered() {
+            const cat   = document.getElementById('svsFilterCat')?.value   || '';
+            const bt    = document.getElementById('svsFilterBt')?.value    || '';
+            const color = document.getElementById('svsFilterColor')?.value || '';
+            const shop  = document.getElementById('svsFilterShop')?.value  || '';
+            return npShopDetail.filter(r =>
+                (!cat   || r.category === cat)  &&
+                (!bt    || r.bag_type === bt)   &&
+                (!color || r.color    === color) &&
+                (!shop  || r.shops.some(s => s.shop === shop))
+            );
+        }
+
+        function _svsPopulateFilters() {
+            const cats   = [...new Set(npShopDetail.map(r => r.category))].filter(Boolean).sort();
+            const bts    = [...new Set(npShopDetail.map(r => r.bag_type))].filter(Boolean).sort();
+            const colors = [...new Set(npShopDetail.map(r => r.color))].filter(Boolean).sort();
+            const shops  = npShopDetail.length ? [...new Set(npShopDetail.flatMap(r => r.shops.map(s => s.shop)))].sort() : [];
+
+            const fill = (id, vals, placeholder) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const cur = el.value;
+                el.innerHTML = `<option value="">${placeholder}</option>` +
+                    vals.map(v => `<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
+            };
+            fill('svsFilterCat',   cats,   'All Categories');
+            fill('svsFilterBt',    bts,    'All Bag Types');
+            fill('svsFilterColor', colors, 'All Colors');
+            fill('svsFilterShop',  shops,  'All Shops');
+        }
+
+        function setSvsView(v, btn) {
+            _svsView = v;
+            document.querySelectorAll('#svsBtn1,#svsBtn2').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('svsChartWrap').style.display = v === 'chart' ? '' : 'none';
+            document.getElementById('svsTableWrap').style.display = v === 'table' ? '' : 'none';
+            renderSvs();
+        }
+
+        function renderSvs() {
+            _svsView === 'chart' ? _buildSvsChart() : _buildSvsTable();
+        }
+
+        function _buildSvsChart() {
+            const rows    = _svsFiltered();
+            const shopFilter = document.getElementById('svsFilterShop')?.value || '';
+
+            // Aggregate sales & stock per shop across filtered rows
+            const shopMap = {};
+            rows.forEach(r => {
+                r.shops.forEach(s => {
+                    if (shopFilter && s.shop !== shopFilter) return;
+                    if (!shopMap[s.shop]) shopMap[s.shop] = { sales: 0, stock: 0, region: s.region };
+                    shopMap[s.shop].sales += s.sales;
+                    shopMap[s.shop].stock += s.stock;
+                });
+            });
+
+            const shopList = Object.entries(shopMap)
+                .filter(([, v]) => v.sales > 0 || v.stock > 0)
+                .sort((a, b) => (b[1].sales + b[1].stock) - (a[1].sales + a[1].stock));
+
+            const labels = shopList.map(([name]) => name);
+            const sales  = shopList.map(([, v]) => v.sales);
+            const stocks = shopList.map(([, v]) => v.stock);
+
+            if (_svsChart) _svsChart.destroy();
+            const ctx = document.getElementById('chartSvs').getContext('2d');
+            _svsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Weekly Sales', data: sales,  backgroundColor: 'rgba(56,189,248,0.85)', borderRadius: 5 },
+                        { label: 'Shop Stock',   data: stocks, backgroundColor: 'rgba(16,185,129,0.75)', borderRadius: 5 },
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc', boxWidth: 14, padding: 14 } },
+                        tooltip: {
+                            callbacks: {
+                                afterBody: items => {
+                                    const i = items[0].dataIndex;
+                                    const s = sales[i], st = stocks[i];
+                                    const ratio = st > 0 ? (s / st * 100).toFixed(0) : '∞';
+                                    return `Coverage: ${ratio}% sold vs stocked`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8', maxRotation: 40 }, grid: { display: false } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+
+        function _buildSvsTable() {
+            const rows      = _svsFiltered();
+            const shopFilter = document.getElementById('svsFilterShop')?.value || '';
+
+            // Collect all shops present in filtered data
+            const shopSet = new Set();
+            rows.forEach(r => r.shops.forEach(s => {
+                if (!shopFilter || s.shop === shopFilter) shopSet.add(s.shop);
+            }));
+            const allShops = [...shopSet].sort();
+
+            if (!allShops.length || !rows.length) {
+                document.getElementById('svsThead').innerHTML = '';
+                document.getElementById('svsTbody').innerHTML =
+                    `<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted);">No data matches the current filters.</td></tr>`;
+                return;
+            }
+
+            // Header: fixed cols + one col per shop
+            const thStyle = 'padding:10px 10px;text-align:center;white-space:nowrap;border-bottom:2px solid var(--glass-border);font-size:0.75rem;';
+            document.getElementById('svsThead').innerHTML = `<tr>
+                <th style="${thStyle}text-align:left;">Bag Type</th>
+                <th style="${thStyle}text-align:left;">Category</th>
+                <th style="${thStyle}text-align:left;">Color</th>
+                ${allShops.map(sh => `<th style="${thStyle}" colspan="2">${sh}</th>`).join('')}
+            </tr>
+            <tr>
+                <th style="${thStyle}"></th><th style="${thStyle}"></th><th style="${thStyle}"></th>
+                ${allShops.map(() => `
+                    <th style="${thStyle};color:#38bdf8;font-weight:700;">Sales</th>
+                    <th style="${thStyle};color:#10b981;font-weight:700;">Stock</th>`).join('')}
+            </tr>`;
+
+            const fmt = n => Number(n || 0).toLocaleString();
+            const tdBase = 'padding:8px 10px;text-align:center;border-bottom:1px solid var(--glass-border);font-size:0.78rem;';
+
+            document.getElementById('svsTbody').innerHTML = rows.map(r => {
+                const shopLookup = Object.fromEntries(r.shops.map(s => [s.shop, s]));
+                const cells = allShops.map(sh => {
+                    const s = shopLookup[sh] || { sales: 0, stock: 0 };
+                    const hasSales = s.sales > 0, hasStock = s.stock > 0;
+                    const stockColor = s.stock === 0 && s.sales > 0 ? 'var(--danger)' :
+                                       s.stock > 0 && s.sales === 0 ? 'var(--warning)' : '#10b981';
+                    return `<td style="${tdBase}color:${hasSales?'#38bdf8':'var(--text-muted)'};">${fmt(s.sales)}</td>
+                            <td style="${tdBase}color:${stockColor};">${fmt(s.stock)}</td>`;
+                }).join('');
+                return `<tr>
+                    <td style="${tdBase}text-align:left;font-weight:600;">${r.bag_type}</td>
+                    <td style="${tdBase}text-align:left;color:var(--text-muted);">${r.category || '—'}</td>
+                    <td style="${tdBase}text-align:left;color:var(--text-muted);">${r.color || '—'}</td>
+                    ${cells}
+                </tr>`;
+            }).join('');
+        }
+
+    </script>
+</body>
+
+</html>
