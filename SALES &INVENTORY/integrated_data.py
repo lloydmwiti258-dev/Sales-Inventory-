@@ -4,9 +4,15 @@ import pandas as pd
 import numpy as np
 import os
 import json
+import time
+import pickle
+import tempfile
 from dotenv import load_dotenv
 
 load_dotenv()
+
+CACHE_TTL  = 600  # seconds — refresh from Sheets every 10 minutes
+_CACHE_FILE = os.path.join(tempfile.gettempdir(), 'sales_inventory_cache.pkl')
 
 # ══════════════════════════════════════════════════════════════════════════════
 # CONFIGURATION
@@ -34,6 +40,13 @@ SHOP_REGIONS = {
     'Uganda':    'Diaspora',
     'Website':   'Online',
     'Rongai':    'Rift Valley',
+}
+
+NEW_PRODUCTS = {
+    'AMORA', 'ARM BAND', 'CATHY HANDBAG', 'CELINE SLING BAG', 'CESS', 'CHASE',
+    'CLAIRE HANDBAG', 'COSMO', 'IMANI', 'LEGACY', 'LOOP BP', 'MANDY HB', 'MEGA',
+    'MINI UMBRA', 'MONAH BP', 'MONTANA', 'NALA', 'PIONEER', 'PRIME',
+    'SIERRA HANDBAG', 'SKYE HB', 'SPARK', 'SPLASH BACKPACK', 'TAJI', 'VOYAGE',
 }
 
 SCOPES = [
@@ -84,7 +97,7 @@ def fetch_sheet_as_df(client, sheet_name, worksheet_name):
             else:
                 return pd.DataFrame()
                 
-        data = ws.get_all_values()
+        data = _with_retry(ws.get_all_values)
         if not data:
             return pd.DataFrame()
         df = pd.DataFrame(data[1:], columns=data[0])
@@ -103,13 +116,46 @@ def clean_numeric(val):
             return 0
     return val if isinstance(val, (int, float)) else 0
 
+def _with_retry(fn, max_retries=4):
+    """Call fn(), retrying on 429 rate-limit errors with exponential backoff."""
+    for attempt in range(max_retries):
+        try:
+            return fn()
+        except gspread.exceptions.APIError as e:
+            if '429' in str(e) and attempt < max_retries - 1:
+                wait = 5 * (2 ** attempt)  # 5s, 10s, 20s, 40s
+                print(f"[RATE LIMIT] Retrying '{fn}' in {wait}s (attempt {attempt + 1}/{max_retries})")
+                time.sleep(wait)
+            else:
+                raise
+
 def process_data():
+    # Serve from file cache if still fresh
     try:
-        return _process_data_impl()
+        if os.path.exists(_CACHE_FILE):
+            age = time.time() - os.path.getmtime(_CACHE_FILE)
+            if age < CACHE_TTL:
+                with open(_CACHE_FILE, 'rb') as f:
+                    print(f"[CACHE] Serving from file cache (age {int(age)}s)")
+                    return pickle.load(f)
+    except Exception as e:
+        print(f"[CACHE] Could not read cache: {e}")
+
+    try:
+        data = _process_data_impl()
     except Exception as e:
         print("Data processing error:")
         print(traceback.format_exc())
         raise e
+
+    try:
+        with open(_CACHE_FILE, 'wb') as f:
+            pickle.dump(data, f)
+        print("[CACHE] Saved to file cache")
+    except Exception as e:
+        print(f"[CACHE] Could not save cache: {e}")
+
+    return data
 
 import concurrent.futures
 
@@ -209,7 +255,7 @@ def fetch_ws_data(sh, ws_name):
             print(f"[ERROR] Worksheet '{ws_name}' not found.")
             return ws_name, pd.DataFrame()
 
-    data = ws.get_all_values()
+    data = _with_retry(ws.get_all_values)
     if not data:
         return ws_name, pd.DataFrame()
 
@@ -259,7 +305,7 @@ def _fetch_revenue_breakdown(sh):
         print(f"[REVENUE] No revenue sheet found. Available: {available}")
         return pd.DataFrame()
 
-    data = ws.get_all_values()
+    data = _with_retry(ws.get_all_values)
     if not data:
         return pd.DataFrame()
 
@@ -341,7 +387,7 @@ def _process_data_impl():
     sheets = ['SALE', 'MARKETING', 'STOCKS', 'PRODUCTION', 'WAREHOUSE', 'DISPATCH', 'MONTHLY TARGET']
     dfs = {}
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=len(sheets)) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         future_to_ws = {executor.submit(fetch_ws_data, sh, s): s for s in sheets}
         for future in concurrent.futures.as_completed(future_to_ws):
             name, df = future.result()
@@ -502,6 +548,61 @@ def _process_data_impl():
         })
     shop_analysis.sort(key=lambda x: x['sales'], reverse=True)
 
+    # Per-shop analysis scoped to new products — keyed on Bag Type (column D of SALE sheet)
+    _np_upper = {p.upper() for p in NEW_PRODUCTS}
+    new_products_shop_analysis = []
+    if 'Bag Type' in sales_df.columns and sale_shop_cols:
+        np_sales_rows = sales_df[sales_df['Bag Type'].str.strip().str.upper().isin(_np_upper)]
+        np_sales_by_shop = np_sales_rows[sale_shop_cols].sum()
+        np_stocks_by_shop = pd.Series(dtype=float)
+        if 'Bag Type' in stocks_df.columns and stocks_shop_cols:
+            np_stocks_rows = stocks_df[stocks_df['Bag Type'].str.strip().str.upper().isin(_np_upper)]
+            np_stocks_by_shop = np_stocks_rows[stocks_shop_cols].sum()
+        for col in all_shop_cols:
+            new_products_shop_analysis.append({
+                'shop':   col.title(),
+                'region': next((v for k, v in SHOP_REGIONS.items() if k.upper() == col.upper()), 'Other'),
+                'sales':  int(np_sales_by_shop.get(col, 0)),
+                'stocks': int(np_stocks_by_shop.get(col, 0)) if col in np_stocks_by_shop.index else 0,
+            })
+        new_products_shop_analysis.sort(key=lambda x: x['sales'], reverse=True)
+
+    # Per-row (bag_type × category × color) shop-level sales vs stock detail
+    new_products_shop_detail = []
+    if 'Bag Type' in sales_df.columns and sale_shop_cols:
+        np_sale_rows  = sales_df[sales_df['Bag Type'].str.strip().str.upper().isin(_np_upper)]
+        np_stock_rows = stocks_df[stocks_df['Bag Type'].str.strip().str.upper().isin(_np_upper)] \
+                        if 'Bag Type' in stocks_df.columns else pd.DataFrame()
+        for _, srow in np_sale_rows.iterrows():
+            bag_type = str(srow.get('Bag Type', '')).strip()
+            category = str(srow.get('Category', '')).strip()
+            color    = str(srow.get('Color',    '')).strip()
+            # Match stock row(s) by bag_type + category + color
+            smatch = np_stock_rows.copy() if not np_stock_rows.empty else pd.DataFrame()
+            if not smatch.empty:
+                if 'Bag Type' in smatch.columns:
+                    smatch = smatch[smatch['Bag Type'].str.strip().str.upper() == bag_type.upper()]
+                if 'Category' in smatch.columns and category:
+                    smatch = smatch[smatch['Category'].str.strip().str.upper() == category.upper()]
+                if 'Color' in smatch.columns and color:
+                    smatch = smatch[smatch['Color'].str.strip().str.upper() == color.upper()]
+            shops = []
+            for col in all_shop_cols:
+                sale_val  = int(srow[col])  if col in srow.index  and srow[col]  else 0
+                stock_val = int(smatch[col].sum()) if not smatch.empty and col in smatch.columns else 0
+                shops.append({
+                    'shop':   col.title(),
+                    'region': next((v for k, v in SHOP_REGIONS.items() if k.upper() == col.upper()), 'Other'),
+                    'sales':  sale_val,
+                    'stock':  stock_val,
+                })
+            new_products_shop_detail.append({
+                'bag_type': bag_type,
+                'category': category,
+                'color':    color,
+                'shops':    shops,
+            })
+
     def slim(df, keys, keep_cols):
         """Keep only merge keys + specific columns to avoid duplicate column conflicts."""
         cols = [c for c in keys + keep_cols if c in df.columns]
@@ -528,11 +629,13 @@ def _process_data_impl():
     revenue_df = _fetch_revenue_breakdown(sh)
 
     return {
-        'master':        master,
-        'target_df':     target_df,
-        'shop_analysis': shop_analysis,
-        'revenue_df':    revenue_df,
-        'stitched_df':   stitched_df,
+        'master':                     master,
+        'target_df':                  target_df,
+        'shop_analysis':              shop_analysis,
+        'revenue_df':                 revenue_df,
+        'stitched_df':                stitched_df,
+        'new_products_shop_analysis': new_products_shop_analysis,
+        'new_products_shop_detail':   new_products_shop_detail,
     }
 
 def _safe_groupby_agg(master, group_keys, wanted_cols):

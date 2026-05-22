@@ -553,6 +553,11 @@
                 <div class="kpi-value" id="kTotalDispatch">0</div>
                 <div class="kpi-trend">Units sent to shops</div>
             </div>
+            <div class="kpi-card" style="--card-color:#e879f9">
+                <div class="kpi-label">New Products Weekly Sales</div>
+                <div class="kpi-value" id="kNewProdSales">0</div>
+                <div class="kpi-trend" id="kNewProdTop" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</div>
+            </div>
         </div>
 
         <!-- Production -->
@@ -640,6 +645,7 @@
             <button class="tab-btn active" onclick="switchTab('master', this)">Master Registry</button>
             <button class="tab-btn" onclick="switchTab('shops', this)">Shop Performance</button>
             <button class="tab-btn" onclick="switchTab('stitched', this)">Bags Stitched Summary</button>
+            <button class="tab-btn" onclick="switchTab('newproducts', this)">New Products</button>
             <button class="tab-btn" onclick="switchTab('correlations', this)">Correlations</button>
             <button class="tab-btn" onclick="switchTab('corrmatrix', this)">Correlation Matrix</button>
             <button class="tab-btn" onclick="switchTab('revenue', this)">Revenue Breakdown</button>
@@ -764,6 +770,102 @@
                         </thead>
                         <tbody id="tbodyStitched"></tbody>
                     </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEW PRODUCTS TAB -->
+        <div id="section-newproducts" class="section">
+
+            <!-- Champion Cards -->
+            <div class="kpi-grid" style="margin-bottom:24px;" id="npChampions"></div>
+
+            <!-- Pipeline summary bar -->
+            <div class="card" style="margin-bottom:24px;">
+                <div class="card-header">
+                    <div class="card-title">New Products — Stock Pipeline Overview</div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);">Total units at each production stage</div>
+                </div>
+                <div class="chart-container" style="height:120px;"><canvas id="chartNpPipeline"></canvas></div>
+            </div>
+
+            <!-- Per-product pipeline + chart -->
+            <div class="grid-2" style="margin-bottom:24px;">
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Weekly Sales by New Product</div></div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartNpSales"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header"><div class="card-title">Shop Distribution — New Products</div></div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartNpShops"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Product pipeline table -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Product-by-Product Pipeline Alignment</div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <div class="search-box"><input type="text" id="npSearch" placeholder="Search product..." oninput="filterNpTable(this.value)" style="width:200px;"></div>
+                        <button class="page-btn" onclick="exportNpExcel()">Excel Export</button>
+                    </div>
+                </div>
+                <!-- Column toggles -->
+                <div id="npColToggles" style="display:flex;flex-wrap:wrap;gap:6px;padding:10px 20px 12px;border-bottom:1px solid var(--glass-border);"></div>
+                <div class="table-container">
+                    <table id="tblNp">
+                        <thead id="npThead"></thead>
+                        <tbody id="tbodyNp"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sales vs Shop Stock Alignment -->
+            <div class="card" style="margin-top:24px;">
+                <div class="card-header">
+                    <div class="card-title">Sales vs Shop Stock Alignment</div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <button class="ctype-btn active" id="svsBtn1" onclick="setSvsView('chart',this)">Chart</button>
+                        <button class="ctype-btn" id="svsBtn2" onclick="setSvsView('table',this)">Table</button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div style="display:flex;gap:10px;flex-wrap:wrap;padding:12px 20px;border-bottom:1px solid var(--glass-border);">
+                    <select id="svsFilterCat"  class="corr-ctl" onchange="renderSvs()" style="min-width:130px;">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="svsFilterBt"   class="corr-ctl" onchange="renderSvs()" style="min-width:140px;">
+                        <option value="">All Bag Types</option>
+                    </select>
+                    <select id="svsFilterColor" class="corr-ctl" onchange="renderSvs()" style="min-width:130px;">
+                        <option value="">All Colors</option>
+                    </select>
+                    <select id="svsFilterShop" class="corr-ctl" onchange="renderSvs()" style="min-width:120px;">
+                        <option value="">All Shops</option>
+                    </select>
+                </div>
+
+                <!-- Chart view -->
+                <div id="svsChartWrap" style="padding:16px 20px;">
+                    <div class="chart-container" style="height:360px;"><canvas id="chartSvs"></canvas></div>
+                </div>
+
+                <!-- Table view -->
+                <div id="svsTableWrap" style="display:none;">
+                    <div style="overflow-x:auto;">
+                        <table id="tblSvs" style="width:100%;border-collapse:collapse;font-size:0.8rem;">
+                            <thead id="svsThead"></thead>
+                            <tbody id="svsTbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div style="display:flex;gap:18px;padding:10px 20px 14px;font-size:0.72rem;color:var(--text-muted);">
+                    <span><span style="display:inline-block;width:10px;height:10px;background:#38bdf8;border-radius:2px;margin-right:4px;"></span>Sales</span>
+                    <span><span style="display:inline-block;width:10px;height:10px;background:#10b981;border-radius:2px;margin-right:4px;"></span>Shop Stock</span>
+                    <span style="margin-left:auto;font-style:italic;">Stock shown as separate row in table. Filter by product/color/shop for detail.</span>
                 </div>
             </div>
         </div>
@@ -1045,6 +1147,9 @@
         let currentPage = 1, rowsPerPage = 15, sortCol = '', sortAsc = true;
         let charts = {};
         let corrMatrixData = null, selectedVars = [];
+        let newProductsSummary = {}, newProductsData = [], npShopDetail = [];
+        let _npSortCol = 'total_sales', _npSortAsc = false, _npFilter = '';
+        let _svsView = 'chart';
 
         async function loadDashboard() {
             try {
@@ -1066,6 +1171,9 @@
                 filteredShopData = [...allShopData];
                 revenueData = data.revenue_data || [];
                 stitchedData = data.stitched_data || [];
+                newProductsSummary = data.new_products_summary || {};
+                newProductsData    = data.new_products_data || [];
+                npShopDetail       = data.new_products_shop_detail || [];
 
                 updateKPIs(data.summary);
                 updateFilters(data.filters);
@@ -1109,6 +1217,9 @@
             document.getElementById('kWeeklyStitched').textContent = (s.weekly_stitched || 0).toLocaleString();
             document.getElementById('kWeeklyFinished').textContent  = (s.weekly_finished  || 0).toLocaleString();
             document.getElementById('kFinishingWip').textContent    = (s.finishing_wip    || 0).toLocaleString();
+            const npSum = newProductsSummary;
+            document.getElementById('kNewProdSales').textContent = (npSum.total_sales || 0).toLocaleString();
+            document.getElementById('kNewProdTop').textContent   = npSum.best_product ? `Top: ${npSum.best_product.name} (${(npSum.best_product.sales||0).toLocaleString()})` : '—';
             document.getElementById('kMktKenya').textContent  = (s.marketing_kenya  || 0).toLocaleString();
             document.getElementById('kMktSinza').textContent  = (s.marketing_sinza  || 0).toLocaleString();
             document.getElementById('kMktUganda').textContent = (s.marketing_uganda || 0).toLocaleString();
@@ -1802,6 +1913,7 @@
             if (name === 'corrmatrix' && !corrMatrixData) loadCorrMatrix();
             if (name === 'revenue') renderRevenue();
             if (name === 'stitched') renderStitched();
+            if (name === 'newproducts') renderNewProducts();
         }
 
         // ── REVENUE BREAKDOWN ────────────────────────────────────────────────────────
@@ -2494,6 +2606,366 @@
         }
 
         window.onload = loadDashboard;
+
+        // ── NEW PRODUCTS ─────────────────────────────────────────────────────────────
+        let _npPipelineChart = null, _npSalesChart = null, _npShopsChart = null;
+
+        function renderNewProducts() {
+            buildNpChampions();
+            buildNpPipelineChart();
+            buildNpSalesChart();
+            buildNpShopsChart();
+            buildNpColToggles();
+            buildNpHead();
+            buildNpTable();
+            _svsPopulateFilters();
+            renderSvs();
+        }
+
+        function buildNpChampions() {
+            const s = newProductsSummary;
+            const fmt = n => Number(n || 0).toLocaleString();
+            const champions = [
+                { label: 'Best Product',  name: s.best_product?.name  || '—', sub: `${fmt(s.best_product?.sales)} weekly units`,  color: '#e879f9' },
+                { label: 'Best Category', name: s.best_category?.name || '—', sub: `${fmt(s.best_category?.sales)} weekly units`, color: '#38bdf8' },
+                { label: 'Best Shop',     name: s.best_shop?.name     || '—', sub: `${fmt(s.best_shop?.sales)} weekly units`,     color: '#10b981' },
+                { label: 'Best Region',   name: s.best_region?.name   || '—', sub: `${fmt(s.best_region?.sales)} weekly units`,   color: '#f59e0b' },
+            ];
+            document.getElementById('npChampions').innerHTML = champions.map(c => `
+                <div class="kpi-card" style="--card-color:${c.color}">
+                    <div class="kpi-label">${c.label}</div>
+                    <div class="kpi-value" style="font-size:1.1rem;line-height:1.2;">${c.name}</div>
+                    <div class="kpi-trend">${c.sub}</div>
+                </div>`).join('');
+        }
+
+        function buildNpPipelineChart() {
+            const s = newProductsSummary;
+            const labels  = ['Cut in Store', 'Stitching WIP', 'Finishing WIP', 'Warehouse', 'Shop Stock'];
+            const vals    = [s.cut_in_store || 0, s.stitching_wip || 0, s.finishing_wip || 0, s.warehouse || 0, s.total_stock || 0];
+            const colors  = ['#818cf8','#f59e0b','#f97316','#10b981','#38bdf8'];
+            if (_npPipelineChart) _npPipelineChart.destroy();
+            _npPipelineChart = new Chart(document.getElementById('chartNpPipeline').getContext('2d'), {
+                type: 'bar',
+                data: { labels, datasets: [{ data: vals, backgroundColor: colors, borderRadius: 6 }] },
+                options: {
+                    indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ' ' + ctx.raw.toLocaleString() + ' units' } } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#f8fafc', font: { weight: '600' } }, grid: { display: false } }
+                    }
+                }
+            });
+        }
+
+        function buildNpSalesChart() {
+            const sorted = [...newProductsData].sort((a, b) => b.total_sales - a.total_sales).slice(0, 20);
+            const COLS = ['#e879f9','#38bdf8','#10b981','#f59e0b','#818cf8','#f97316','#06b6d4','#a78bfa','#34d399','#fbbf24',
+                          '#f87171','#60a5fa','#4ade80','#fb923c','#c084fc','#2dd4bf','#facc15','#818cf8','#f43f5e','#84cc16'];
+            if (_npSalesChart) _npSalesChart.destroy();
+            _npSalesChart = new Chart(document.getElementById('chartNpSales').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: sorted.map(r => r.product),
+                    datasets: [{ label: 'Weekly Sales', data: sorted.map(r => r.total_sales), backgroundColor: COLS }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8', maxRotation: 45 }, grid: { display: false } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+
+        function buildNpShopsChart() {
+            const shops = (newProductsSummary.shop_breakdown || []).filter(s => s.sales > 0).slice(0, 15);
+            const COLS = ['#38bdf8','#10b981','#f59e0b','#818cf8','#e879f9','#f97316','#06b6d4','#a78bfa','#34d399','#fbbf24','#f87171','#60a5fa','#4ade80','#fb923c','#c084fc'];
+            if (_npShopsChart) _npShopsChart.destroy();
+            _npShopsChart = new Chart(document.getElementById('chartNpShops').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: shops.map(s => s.shop),
+                    datasets: [{ data: shops.map(s => s.sales), backgroundColor: COLS, borderWidth: 2, borderColor: '#1e293b' }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#f8fafc', boxWidth: 12, padding: 10, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()}` } }
+                    }
+                }
+            });
+        }
+
+        // Column config for the pipeline table — all visible by default
+        const NP_COLS = [
+            { key: 'total_sales',   label: 'Weekly Sales', color: '#e879f9', align: 'right', bar: false },
+            { key: 'total_dispatch',label: 'Dispatch',     color: '#94a3b8', align: 'right', bar: false },
+            { key: 'cut_in_store',  label: 'Cut Store',    color: '#818cf8', align: 'right', bar: true  },
+            { key: 'stitching_wip', label: 'Stitch WIP',   color: '#f59e0b', align: 'right', bar: true  },
+            { key: 'finishing_wip', label: 'Finish WIP',   color: '#f97316', align: 'right', bar: true  },
+            { key: 'warehouse',     label: 'Warehouse',    color: '#10b981', align: 'right', bar: true  },
+            { key: 'shop_stores',   label: 'Shop Stock',   color: '#38bdf8', align: 'right', bar: true  },
+            { key: 'marketing',     label: 'Marketing',    color: '#06b6d4', align: 'right', bar: false },
+            { key: 'revenue',       label: 'Revenue',      color: '#a78bfa', align: 'right', bar: false },
+        ];
+        NP_COLS.forEach(c => c.visible = true);
+
+        function buildNpColToggles() {
+            document.getElementById('npColToggles').innerHTML =
+                '<span style="font-size:0.72rem;color:var(--text-muted);font-weight:600;align-self:center;margin-right:4px;">Show columns:</span>' +
+                NP_COLS.map(c => `
+                    <button onclick="toggleNpCol('${c.key}')" id="npToggle_${c.key}"
+                        style="padding:4px 12px;border-radius:20px;border:1px solid ${c.color};
+                               background:${c.color};color:#fff;font-size:0.72rem;font-weight:600;cursor:pointer;transition:all .2s;">
+                        ${c.label}
+                    </button>`).join('');
+        }
+
+        function toggleNpCol(key) {
+            const col = NP_COLS.find(c => c.key === key);
+            if (!col) return;
+            col.visible = !col.visible;
+            const btn = document.getElementById(`npToggle_${key}`);
+            btn.style.background    = col.visible ? col.color : 'transparent';
+            btn.style.color         = col.visible ? '#fff'    : col.color;
+            buildNpHead();
+            buildNpTable();
+        }
+
+        function buildNpHead() {
+            const vis = NP_COLS.filter(c => c.visible);
+            document.getElementById('npThead').innerHTML = `<tr>
+                <th onclick="sortNp('product')">Product ↕</th>
+                <th onclick="sortNp('category')">Category ↕</th>
+                ${vis.map(c => `<th onclick="sortNp('${c.key}')" style="text-align:right;">${c.label} ↕</th>`).join('')}
+            </tr>`;
+        }
+
+        function buildNpTable() {
+            const fmt = n => Number(n || 0).toLocaleString();
+            const q = _npFilter.toLowerCase();
+            let rows = newProductsData.filter(r =>
+                !q || r.product.toLowerCase().includes(q) || (r.category || '').toLowerCase().includes(q)
+            );
+            rows = [...rows].sort((a, b) => {
+                const va = a[_npSortCol] ?? 0, vb = b[_npSortCol] ?? 0;
+                if (typeof va === 'string') return _npSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+                return _npSortAsc ? va - vb : vb - va;
+            });
+            const vis = NP_COLS.filter(c => c.visible);
+            const tbody = document.getElementById('tbodyNp');
+            if (!rows.length) {
+                tbody.innerHTML = `<tr><td colspan="${2 + vis.length}" style="text-align:center;padding:30px;color:var(--text-muted);">No new products data available.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = rows.map(r => {
+                const valCells = vis.map(c => {
+                    const v = r[c.key] || 0;
+                    if (c.bar) {
+                        const max = Math.max(...newProductsData.map(d => d[c.key] || 0), 1);
+                        const pct = Math.min(100, Math.round((v / max) * 100));
+                        return `<td style="text-align:right;padding:10px 14px;">
+                            <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+                                <span style="font-weight:600;color:${c.color};">${fmt(v)}</span>
+                                <div style="width:40px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+                                    <div style="width:${pct}%;height:100%;background:${c.color};border-radius:3px;"></div>
+                                </div>
+                            </div></td>`;
+                    }
+                    return `<td style="text-align:right;padding:10px 14px;font-weight:${c.key==='total_sales'?'700':'500'};color:${c.color};">${fmt(v)}</td>`;
+                }).join('');
+                return `<tr>
+                    <td style="padding:10px 14px;font-weight:600;">${r.product}</td>
+                    <td style="padding:10px 14px;color:var(--text-muted);">${r.category || '—'}</td>
+                    ${valCells}
+                </tr>`;
+            }).join('');
+        }
+
+        function sortNp(col) {
+            if (_npSortCol === col) _npSortAsc = !_npSortAsc;
+            else { _npSortCol = col; _npSortAsc = false; }
+            buildNpTable();
+        }
+
+        function filterNpTable(q) { _npFilter = q; buildNpTable(); }
+
+        function exportNpExcel() {
+            const vis = NP_COLS.filter(c => c.visible);
+            const headers = ['Product', 'Category', ...vis.map(c => c.label)];
+            const rows = [headers, ...newProductsData.map(r => [
+                r.product, r.category, ...vis.map(c => r[c.key] || 0)
+            ])];
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'New Products');
+            XLSX.writeFile(wb, 'new_products_pipeline.xlsx');
+        }
+
+        // ── SALES VS SHOP STOCK ALIGNMENT ────────────────────────────────────────────
+        let _svsChart = null;
+
+        function _svsFiltered() {
+            const cat   = document.getElementById('svsFilterCat')?.value   || '';
+            const bt    = document.getElementById('svsFilterBt')?.value    || '';
+            const color = document.getElementById('svsFilterColor')?.value || '';
+            const shop  = document.getElementById('svsFilterShop')?.value  || '';
+            return npShopDetail.filter(r =>
+                (!cat   || r.category === cat)  &&
+                (!bt    || r.bag_type === bt)   &&
+                (!color || r.color    === color) &&
+                (!shop  || r.shops.some(s => s.shop === shop))
+            );
+        }
+
+        function _svsPopulateFilters() {
+            const cats   = [...new Set(npShopDetail.map(r => r.category))].filter(Boolean).sort();
+            const bts    = [...new Set(npShopDetail.map(r => r.bag_type))].filter(Boolean).sort();
+            const colors = [...new Set(npShopDetail.map(r => r.color))].filter(Boolean).sort();
+            const shops  = npShopDetail.length ? [...new Set(npShopDetail.flatMap(r => r.shops.map(s => s.shop)))].sort() : [];
+
+            const fill = (id, vals, placeholder) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const cur = el.value;
+                el.innerHTML = `<option value="">${placeholder}</option>` +
+                    vals.map(v => `<option value="${v}"${v===cur?' selected':''}>${v}</option>`).join('');
+            };
+            fill('svsFilterCat',   cats,   'All Categories');
+            fill('svsFilterBt',    bts,    'All Bag Types');
+            fill('svsFilterColor', colors, 'All Colors');
+            fill('svsFilterShop',  shops,  'All Shops');
+        }
+
+        function setSvsView(v, btn) {
+            _svsView = v;
+            document.querySelectorAll('#svsBtn1,#svsBtn2').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('svsChartWrap').style.display = v === 'chart' ? '' : 'none';
+            document.getElementById('svsTableWrap').style.display = v === 'table' ? '' : 'none';
+            renderSvs();
+        }
+
+        function renderSvs() {
+            _svsView === 'chart' ? _buildSvsChart() : _buildSvsTable();
+        }
+
+        function _buildSvsChart() {
+            const rows    = _svsFiltered();
+            const shopFilter = document.getElementById('svsFilterShop')?.value || '';
+
+            // Aggregate sales & stock per shop across filtered rows
+            const shopMap = {};
+            rows.forEach(r => {
+                r.shops.forEach(s => {
+                    if (shopFilter && s.shop !== shopFilter) return;
+                    if (!shopMap[s.shop]) shopMap[s.shop] = { sales: 0, stock: 0, region: s.region };
+                    shopMap[s.shop].sales += s.sales;
+                    shopMap[s.shop].stock += s.stock;
+                });
+            });
+
+            const shopList = Object.entries(shopMap)
+                .filter(([, v]) => v.sales > 0 || v.stock > 0)
+                .sort((a, b) => (b[1].sales + b[1].stock) - (a[1].sales + a[1].stock));
+
+            const labels = shopList.map(([name]) => name);
+            const sales  = shopList.map(([, v]) => v.sales);
+            const stocks = shopList.map(([, v]) => v.stock);
+
+            if (_svsChart) _svsChart.destroy();
+            const ctx = document.getElementById('chartSvs').getContext('2d');
+            _svsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Weekly Sales', data: sales,  backgroundColor: 'rgba(56,189,248,0.85)', borderRadius: 5 },
+                        { label: 'Shop Stock',   data: stocks, backgroundColor: 'rgba(16,185,129,0.75)', borderRadius: 5 },
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#f8fafc', boxWidth: 14, padding: 14 } },
+                        tooltip: {
+                            callbacks: {
+                                afterBody: items => {
+                                    const i = items[0].dataIndex;
+                                    const s = sales[i], st = stocks[i];
+                                    const ratio = st > 0 ? (s / st * 100).toFixed(0) : '∞';
+                                    return `Coverage: ${ratio}% sold vs stocked`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8', maxRotation: 40 }, grid: { display: false } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+
+        function _buildSvsTable() {
+            const rows      = _svsFiltered();
+            const shopFilter = document.getElementById('svsFilterShop')?.value || '';
+
+            // Collect all shops present in filtered data
+            const shopSet = new Set();
+            rows.forEach(r => r.shops.forEach(s => {
+                if (!shopFilter || s.shop === shopFilter) shopSet.add(s.shop);
+            }));
+            const allShops = [...shopSet].sort();
+
+            if (!allShops.length || !rows.length) {
+                document.getElementById('svsThead').innerHTML = '';
+                document.getElementById('svsTbody').innerHTML =
+                    `<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted);">No data matches the current filters.</td></tr>`;
+                return;
+            }
+
+            // Header: fixed cols + one col per shop
+            const thStyle = 'padding:10px 10px;text-align:center;white-space:nowrap;border-bottom:2px solid var(--glass-border);font-size:0.75rem;';
+            document.getElementById('svsThead').innerHTML = `<tr>
+                <th style="${thStyle}text-align:left;">Bag Type</th>
+                <th style="${thStyle}text-align:left;">Category</th>
+                <th style="${thStyle}text-align:left;">Color</th>
+                ${allShops.map(sh => `<th style="${thStyle}" colspan="2">${sh}</th>`).join('')}
+            </tr>
+            <tr>
+                <th style="${thStyle}"></th><th style="${thStyle}"></th><th style="${thStyle}"></th>
+                ${allShops.map(() => `
+                    <th style="${thStyle};color:#38bdf8;font-weight:700;">Sales</th>
+                    <th style="${thStyle};color:#10b981;font-weight:700;">Stock</th>`).join('')}
+            </tr>`;
+
+            const fmt = n => Number(n || 0).toLocaleString();
+            const tdBase = 'padding:8px 10px;text-align:center;border-bottom:1px solid var(--glass-border);font-size:0.78rem;';
+
+            document.getElementById('svsTbody').innerHTML = rows.map(r => {
+                const shopLookup = Object.fromEntries(r.shops.map(s => [s.shop, s]));
+                const cells = allShops.map(sh => {
+                    const s = shopLookup[sh] || { sales: 0, stock: 0 };
+                    const hasSales = s.sales > 0, hasStock = s.stock > 0;
+                    const stockColor = s.stock === 0 && s.sales > 0 ? 'var(--danger)' :
+                                       s.stock > 0 && s.sales === 0 ? 'var(--warning)' : '#10b981';
+                    return `<td style="${tdBase}color:${hasSales?'#38bdf8':'var(--text-muted)'};">${fmt(s.sales)}</td>
+                            <td style="${tdBase}color:${stockColor};">${fmt(s.stock)}</td>`;
+                }).join('');
+                return `<tr>
+                    <td style="${tdBase}text-align:left;font-weight:600;">${r.bag_type}</td>
+                    <td style="${tdBase}text-align:left;color:var(--text-muted);">${r.category || '—'}</td>
+                    <td style="${tdBase}text-align:left;color:var(--text-muted);">${r.color || '—'}</td>
+                    ${cells}
+                </tr>`;
+            }).join('');
+        }
+
     </script>
 </body>
 

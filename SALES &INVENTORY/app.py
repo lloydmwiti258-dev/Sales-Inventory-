@@ -1,8 +1,9 @@
 from flask import Flask, jsonify, render_template, request
 import pandas as pd
 import threading
+from collections import defaultdict
 from datetime import datetime
-from integrated_data import process_data, get_correlations, get_insights, get_pearson_matrix
+from integrated_data import process_data, get_correlations, get_insights, get_pearson_matrix, NEW_PRODUCTS
 
 app = Flask(__name__)
 app.config['TEMPLATES_AUTO_RELOAD'] = True
@@ -115,14 +116,87 @@ def api_integrated_dashboard():
             stitched_clean[c] = stitched_clean[c].fillna(0).round(0).astype(int)
         stitched_data = stitched_clean.to_dict(orient='records')
 
+    # New products analytics
+    _np_upper = {p.upper() for p in NEW_PRODUCTS}
+    def _np_col(d, col):
+        return int(d[col].sum()) if col in d.columns else 0
+
+    # Revenue per Bag Type from the Revenue Breakdown sheet
+    rev_by_bagtype = {}
+    if revenue_df is not None and not revenue_df.empty and 'Bag Type' in revenue_df.columns:
+        rev_col = next((c for c in ('Total Revenue', 'TOTAL REVENUE', 'Total') if c in revenue_df.columns), None)
+        if rev_col:
+            for bt, grp_r in revenue_df.groupby('Bag Type'):
+                rev_by_bagtype[str(bt).strip().upper()] = int(grp_r[rev_col].apply(
+                    lambda v: float(str(v).replace(',', '') or 0) if not isinstance(v, (int, float)) else v
+                ).sum())
+
+    # New products are identified by Bag Type (column D of SALE sheet)
+    np_mask = master['Bag Type'].str.strip().str.upper().isin(_np_upper) if 'Bag Type' in master.columns else pd.Series([False] * len(master))
+    np_df   = master[np_mask].copy()
+
+    # Per-product pipeline rows for the tab table
+    np_data = []
+    if not np_df.empty:
+        for prod, grp in np_df.groupby('Bag Type'):
+            np_data.append({
+                'product':        prod,
+                'category':       grp['Category'].mode()[0] if 'Category' in grp.columns and not grp.empty else '—',
+                'total_sales':    _np_col(grp, 'Total Sales'),
+                'total_stock':    _np_col(grp, 'Total Stock'),
+                'total_dispatch': _np_col(grp, 'Total Dispatch'),
+                'cut_in_store':   _np_col(grp, 'Bags in cut store'),
+                'stitching_wip':  _np_col(grp, 'Stitching WIP'),
+                'finishing_wip':  _np_col(grp, 'WIP to finishing'),
+                'warehouse':      _np_col(grp, 'Total Warehouse Stock'),
+                'shop_stores':    _np_col(grp, 'Total Stock'),
+                'marketing':      _np_col(grp, 'Total Marketing'),
+                'revenue':        rev_by_bagtype.get(prod.strip().upper(), 0),
+            })
+        np_data.sort(key=lambda x: x['total_sales'], reverse=True)
+
+    # Best product / category / shop / region for new products
+    np_shop_analysis = data_dict.get('new_products_shop_analysis', [])
+
+    best_product  = np_data[0] if np_data else None
+    np_by_cat     = defaultdict(int)
+    for r in np_data:
+        np_by_cat[r['category']] += r['total_sales']
+    best_cat_name, best_cat_sales = max(np_by_cat.items(), key=lambda x: x[1], default=('—', 0))
+
+    best_shop = next(iter([s for s in np_shop_analysis if s['sales'] > 0]), None)
+
+    np_by_region = defaultdict(int)
+    for s in np_shop_analysis:
+        np_by_region[s['region']] += s['sales']
+    best_region_name, best_region_sales = max(np_by_region.items(), key=lambda x: x[1], default=('—', 0))
+
+    new_products_summary = {
+        'total_sales':     _np_col(np_df, 'Total Sales'),
+        'total_stock':     _np_col(np_df, 'Total Stock'),
+        'total_dispatch':  _np_col(np_df, 'Total Dispatch'),
+        'cut_in_store':    _np_col(np_df, 'Bags in cut store'),
+        'stitching_wip':   _np_col(np_df, 'Stitching WIP'),
+        'finishing_wip':   _np_col(np_df, 'WIP to finishing'),
+        'warehouse':       _np_col(np_df, 'Total Warehouse Stock'),
+        'best_product':    {'name': best_product['product'],  'sales': best_product['total_sales']}  if best_product  else {'name': '—', 'sales': 0},
+        'best_category':   {'name': best_cat_name,            'sales': best_cat_sales},
+        'best_shop':       {'name': best_shop['shop'],        'sales': best_shop['sales']}            if best_shop     else {'name': '—', 'sales': 0},
+        'best_region':     {'name': best_region_name,         'sales': best_region_sales},
+        'shop_breakdown':  np_shop_analysis,
+    }
+
     return jsonify({
         'summary':        summary,
         'master_data':    df.to_dict(orient='records'),
         'correlations':   get_correlations(data_dict),
         'shop_analysis':  shop_analysis,
         'revenue_data':   revenue_data,
-        'stitched_data':  stitched_data,
-        'refreshed':      _cache.get('refreshed'),
+        'stitched_data':         stitched_data,
+        'new_products_summary':       new_products_summary,
+        'new_products_data':          np_data,
+        'new_products_shop_detail':   data_dict.get('new_products_shop_detail', []),
+        'refreshed':             _cache.get('refreshed'),
         'filters': {
             'categories': sorted(master['Category'].unique().tolist()),
             'bagtypes':   sorted(master['Bag Type'].unique().tolist()),
@@ -131,6 +205,38 @@ def api_integrated_dashboard():
             'regions':    regions,
             'shops':      shops,
         }
+    })
+
+@app.route('/api/debug/products')
+def api_debug_products():
+    data_dict = get_data()
+    if not data_dict:
+        return jsonify({'error': 'No data'}), 503
+    master = data_dict['master']
+    cols = list(master.columns)
+    products = sorted(str(v) for v in master['Product Name'].unique()) if 'Product Name' in master.columns else []
+    np_upper = {p.upper() for p in NEW_PRODUCTS}
+    matched = [p for p in products if p.upper() in np_upper]
+
+    # Also check the raw SALE sheet directly
+    from integrated_data import get_client, SHEET_NAME
+    try:
+        sh = get_client().open(SHEET_NAME)
+        ws = sh.worksheet('SALE')
+        rows = ws.get_all_values()
+        header_row = rows[0] if rows else []
+        col_d_values = sorted(set(r[3] for r in rows[1:] if len(r) > 3 and r[3].strip())) if len(header_row) > 3 else []
+    except Exception as e:
+        header_row = [f'error: {e}']
+        col_d_values = []
+
+    return jsonify({
+        'master_columns': cols,
+        'all_product_names_in_master': products,
+        'matched_new_products': matched,
+        'sale_sheet_headers': header_row,
+        'sale_sheet_col_d_header': header_row[3] if len(header_row) > 3 else '—',
+        'sale_sheet_col_d_unique_values': col_d_values[:60],
     })
 
 @app.route('/api/insights')
