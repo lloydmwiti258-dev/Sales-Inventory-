@@ -487,6 +487,122 @@
             outline: none;
             cursor: pointer;
         }
+
+        /* ── Responsive ──────────────────────────────────────────────────────────── */
+
+        /* Always allow filters to wrap */
+        .filters { flex-wrap: wrap; }
+
+        /* Tabs: horizontal scroll on any screen, no scrollbar chrome */
+        .tabs {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            flex-wrap: nowrap;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-btn { white-space: nowrap; }
+
+        /* Card headers wrap when they get cramped */
+        .card-header { flex-wrap: wrap; gap: 10px; }
+
+        /* ── Tablet (≤ 900 px) ───────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+            header  { padding: 10px 20px 8px; }
+            main    { padding: 20px 16px; }
+
+            .header-brand  { font-size: 1.5rem; }
+            .header-title  { font-size: 0.72rem; letter-spacing: 0.12em; }
+
+            .filter-item select { padding: 6px 10px; font-size: 0.78rem; }
+            .btn-refresh        { padding: 8px 16px; font-size: 0.8rem; }
+
+            .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+            .kpi-card { padding: 18px 16px; }
+            .kpi-value { font-size: 1.5rem; }
+
+            .grid-2 { grid-template-columns: 1fr; gap: 16px; }
+
+            .card { padding: 18px 16px; }
+            .card-title { font-size: 0.88rem; }
+
+            .chart-container { height: 260px !important; }
+
+            .search-box input { width: 160px; }
+        }
+
+        /* ── Phone (≤ 600 px) ────────────────────────────────────────────────── */
+        @media (max-width: 600px) {
+            header { padding: 8px 12px 6px; }
+            main   { padding: 14px 10px; }
+
+            .header-brand { font-size: 1.2rem; letter-spacing: 0.08em; }
+            .header-title { font-size: 0.65rem; margin-bottom: 8px; }
+
+            .filters { gap: 6px; justify-content: flex-start !important; }
+            .filter-item select { padding: 5px 8px; font-size: 0.72rem; border-radius: 8px; max-width: 130px; }
+            .btn-refresh { padding: 6px 12px; font-size: 0.75rem; }
+
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+            .kpi-card { padding: 12px 10px; }
+            .kpi-value { font-size: 1.25rem; }
+            .kpi-label { font-size: 0.65rem; }
+            .kpi-trend { font-size: 0.62rem; }
+
+            .card { padding: 12px 10px; }
+            .card-title { font-size: 0.8rem; }
+
+            .tabs { gap: 2px; padding-bottom: 8px; margin-bottom: 20px; }
+            .tab-btn { padding: 8px 12px; font-size: 0.72rem; }
+
+            .chart-container { height: 220px !important; }
+
+            table { font-size: 0.72rem; }
+            th, td { padding: 8px 10px; }
+
+            .search-box input { width: 100%; max-width: 200px; }
+            .page-btn { padding: 4px 8px; font-size: 0.72rem; }
+
+            /* Stack card-header controls below the title on phones */
+            .card-header { flex-direction: column; align-items: flex-start; }
+
+            /* Pagination compact */
+            .pagination { gap: 6px; }
+        }
+
+        /* ── Small phone (≤ 380 px) ──────────────────────────────────────────── */
+        @media (max-width: 380px) {
+            .header-brand { font-size: 1rem; }
+            .kpi-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+            .kpi-value { font-size: 1.1rem; }
+            .filter-item select { max-width: 110px; font-size: 0.68rem; }
+        }
+
+        /* KPI section group labels */
+        .kpi-group-label {
+            margin-bottom: 8px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        @media (max-width: 600px) { .kpi-group-label { font-size: 0.62rem; } }
+
+        /* Insights cards inner grids */
+        @media (max-width: 600px) {
+            /* Override the inline grid-template-columns in insight JS cards */
+            #insightStock  [style*="grid-template-columns:1fr 1fr 1fr"],
+            #insightDispatch [style*="grid-template-columns:1fr 1fr 1fr"],
+            #insightWeekly [style*="grid-template-columns:repeat(3"] {
+                grid-template-columns: 1fr 1fr !important;
+            }
+        }
+
+        /* Shop detail table in SVS section */
+        @media (max-width: 600px) {
+            #svsTableWrap { font-size: 0.68rem; }
+            #svsTableWrap th, #svsTableWrap td { padding: 6px 6px; }
+        }
     </style>
 </head>
 
@@ -530,7 +646,7 @@
     <main>
         <!-- Sales & Stock -->
         <div
-            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            class="kpi-group-label">
             Sales & Inventory</div>
         <div class="kpi-grid" style="margin-bottom:16px;">
             <div class="kpi-card" style="--card-color:var(--accent)">
@@ -562,7 +678,7 @@
 
         <!-- Production -->
         <div
-            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            class="kpi-group-label">
             Production</div>
         <div class="kpi-grid" style="margin-bottom:16px;">
             <div class="kpi-card" style="--card-color:var(--accent-secondary)">
@@ -599,7 +715,7 @@
 
         <!-- Marketing Posts -->
         <div
-            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            class="kpi-group-label">
             Marketing Posts</div>
         <div class="kpi-grid" style="margin-bottom:16px;">
             <div class="kpi-card" style="--card-color:#06b6d4">
@@ -621,7 +737,7 @@
 
         <!-- Monthly Target -->
         <div
-            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            class="kpi-group-label">
             Monthly Target Analytics</div>
         <div class="kpi-grid" style="margin-bottom:40px;">
             <div class="kpi-card" style="--card-color:var(--text-muted)">
@@ -686,7 +802,7 @@
 
         <!-- SHOP PERFORMANCE TAB -->
         <div id="section-shops" class="section">
-            <div class="grid-2" style="margin-bottom:24px;" id="regionCards"></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:24px;" id="regionCards"></div>
             <div class="grid-2">
                 <div class="card">
                     <div class="card-header">
@@ -754,7 +870,7 @@
                     <div style="display:flex;gap:10px;align-items:center;">
                         <div class="search-box">
                             <input type="text" id="stitchedSearch" placeholder="Search category / bag type..."
-                                oninput="filterStitchedTable(this.value)" style="width:220px;">
+                                oninput="filterStitchedTable(this.value)" style="width:min(220px,100%)">
                         </div>
                         <button class="page-btn" onclick="exportStitchedExcel()">Excel Export</button>
                     </div>
@@ -806,7 +922,7 @@
                 <div class="card-header">
                     <div class="card-title">Product-by-Product Pipeline Alignment</div>
                     <div style="display:flex;gap:8px;align-items:center;">
-                        <div class="search-box"><input type="text" id="npSearch" placeholder="Search product..." oninput="filterNpTable(this.value)" style="width:200px;"></div>
+                        <div class="search-box"><input type="text" id="npSearch" placeholder="Search product..." oninput="filterNpTable(this.value)" style="width:min(200px,100%)"></div>
                         <button class="page-btn" onclick="exportNpExcel()">Excel Export</button>
                     </div>
                 </div>
@@ -908,7 +1024,7 @@
                     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                         <div class="search-box">
                             <input type="text" id="corrSummarySearch" placeholder="Search category..."
-                                oninput="filterCorrSummary(this.value)" style="width:160px;">
+                                oninput="filterCorrSummary(this.value)" style="width:min(160px,100%)">
                         </div>
                         <button class="page-btn" onclick="exportCorrSummaryExcel()">Excel Export</button>
                     </div>
@@ -1078,7 +1194,7 @@
                     <div style="display:flex;gap:10px;align-items:center;">
                         <div class="search-box">
                             <input type="text" id="revSearch" placeholder="Search bag type..."
-                                oninput="filterRevTable(this.value)" style="width:200px;">
+                                oninput="filterRevTable(this.value)" style="width:min(200px,100%)">
                         </div>
                         <button class="page-btn" onclick="exportRevExcel()">Excel Export</button>
                     </div>
