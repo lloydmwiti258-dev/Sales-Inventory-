@@ -472,13 +472,19 @@ def _process_data_impl():
     else:
         # Extract complexity summary BEFORE clean_numeric converts text → 0
         if 'Complexity' in wh_df.columns and 'Bags stitched' in wh_df.columns:
-            cx = wh_df[['Category', 'Bag Type', 'Complexity', 'Bags stitched']].copy() \
-                 if 'Category' in wh_df.columns else wh_df[['Bag Type', 'Complexity', 'Bags stitched']].copy()
-            cx['Bags stitched'] = cx['Bags stitched'].apply(clean_numeric)
+            _prod_cols = [c for c in ['Category', 'Bag Type', 'Complexity',
+                                      'Bags stitched', 'Bags finished',
+                                      'WIP to finishing', 'Bags issued for stitching',
+                                      'Stitching WIP'] if c in wh_df.columns]
+            cx = wh_df[_prod_cols].copy()
+            for _c in _prod_cols:
+                if _c not in ('Category', 'Bag Type', 'Complexity'):
+                    cx[_c] = cx[_c].apply(clean_numeric)
             cx = cx[cx['Complexity'].astype(str).str.strip() != '']
             grp_cx = [c for c in ['Category', 'Bag Type', 'Complexity'] if c in cx.columns]
+            _agg_cols = [c for c in _prod_cols if c not in grp_cx]
             if grp_cx:
-                stitched_df = cx.groupby(grp_cx, as_index=False)['Bags stitched'].sum()
+                stitched_df = cx.groupby(grp_cx, as_index=False)[_agg_cols].sum()
                 print(f"[STITCHED] {len(stitched_df)} rows, complexities: {stitched_df['Complexity'].unique().tolist()}")
 
         for col in wh_df.columns:

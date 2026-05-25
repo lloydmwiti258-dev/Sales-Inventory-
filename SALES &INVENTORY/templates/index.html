@@ -487,6 +487,122 @@
             outline: none;
             cursor: pointer;
         }
+
+        /* ── Responsive ──────────────────────────────────────────────────────────── */
+
+        /* Always allow filters to wrap */
+        .filters { flex-wrap: wrap; }
+
+        /* Tabs: horizontal scroll on any screen, no scrollbar chrome */
+        .tabs {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            flex-wrap: nowrap;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab-btn { white-space: nowrap; }
+
+        /* Card headers wrap when they get cramped */
+        .card-header { flex-wrap: wrap; gap: 10px; }
+
+        /* ── Tablet (≤ 900 px) ───────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+            header  { padding: 10px 20px 8px; }
+            main    { padding: 20px 16px; }
+
+            .header-brand  { font-size: 1.5rem; }
+            .header-title  { font-size: 0.72rem; letter-spacing: 0.12em; }
+
+            .filter-item select { padding: 6px 10px; font-size: 0.78rem; }
+            .btn-refresh        { padding: 8px 16px; font-size: 0.8rem; }
+
+            .kpi-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
+            .kpi-card { padding: 18px 16px; }
+            .kpi-value { font-size: 1.5rem; }
+
+            .grid-2 { grid-template-columns: 1fr; gap: 16px; }
+
+            .card { padding: 18px 16px; }
+            .card-title { font-size: 0.88rem; }
+
+            .chart-container { height: 260px !important; }
+
+            .search-box input { width: 160px; }
+        }
+
+        /* ── Phone (≤ 600 px) ────────────────────────────────────────────────── */
+        @media (max-width: 600px) {
+            header { padding: 8px 12px 6px; }
+            main   { padding: 14px 10px; }
+
+            .header-brand { font-size: 1.2rem; letter-spacing: 0.08em; }
+            .header-title { font-size: 0.65rem; margin-bottom: 8px; }
+
+            .filters { gap: 6px; justify-content: flex-start !important; }
+            .filter-item select { padding: 5px 8px; font-size: 0.72rem; border-radius: 8px; max-width: 130px; }
+            .btn-refresh { padding: 6px 12px; font-size: 0.75rem; }
+
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 16px; }
+            .kpi-card { padding: 12px 10px; }
+            .kpi-value { font-size: 1.25rem; }
+            .kpi-label { font-size: 0.65rem; }
+            .kpi-trend { font-size: 0.62rem; }
+
+            .card { padding: 12px 10px; }
+            .card-title { font-size: 0.8rem; }
+
+            .tabs { gap: 2px; padding-bottom: 8px; margin-bottom: 20px; }
+            .tab-btn { padding: 8px 12px; font-size: 0.72rem; }
+
+            .chart-container { height: 220px !important; }
+
+            table { font-size: 0.72rem; }
+            th, td { padding: 8px 10px; }
+
+            .search-box input { width: 100%; max-width: 200px; }
+            .page-btn { padding: 4px 8px; font-size: 0.72rem; }
+
+            /* Stack card-header controls below the title on phones */
+            .card-header { flex-direction: column; align-items: flex-start; }
+
+            /* Pagination compact */
+            .pagination { gap: 6px; }
+        }
+
+        /* ── Small phone (≤ 380 px) ──────────────────────────────────────────── */
+        @media (max-width: 380px) {
+            .header-brand { font-size: 1rem; }
+            .kpi-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+            .kpi-value { font-size: 1.1rem; }
+            .filter-item select { max-width: 110px; font-size: 0.68rem; }
+        }
+
+        /* KPI section group labels */
+        .kpi-group-label {
+            margin-bottom: 8px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+        @media (max-width: 600px) { .kpi-group-label { font-size: 0.62rem; } }
+
+        /* Insights cards inner grids */
+        @media (max-width: 600px) {
+            /* Override the inline grid-template-columns in insight JS cards */
+            #insightStock  [style*="grid-template-columns:1fr 1fr 1fr"],
+            #insightDispatch [style*="grid-template-columns:1fr 1fr 1fr"],
+            #insightWeekly [style*="grid-template-columns:repeat(3"] {
+                grid-template-columns: 1fr 1fr !important;
+            }
+        }
+
+        /* Shop detail table in SVS section */
+        @media (max-width: 600px) {
+            #svsTableWrap { font-size: 0.68rem; }
+            #svsTableWrap th, #svsTableWrap td { padding: 6px 6px; }
+        }
     </style>
 </head>
 
@@ -530,7 +646,7 @@
     <main>
         <!-- Sales & Stock -->
         <div
-            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            class="kpi-group-label">
             Sales & Inventory</div>
         <div class="kpi-grid" style="margin-bottom:16px;">
             <div class="kpi-card" style="--card-color:var(--accent)">
@@ -562,7 +678,7 @@
 
         <!-- Production -->
         <div
-            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            class="kpi-group-label">
             Production</div>
         <div class="kpi-grid" style="margin-bottom:16px;">
             <div class="kpi-card" style="--card-color:var(--accent-secondary)">
@@ -599,7 +715,7 @@
 
         <!-- Marketing Posts -->
         <div
-            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            class="kpi-group-label">
             Marketing Posts</div>
         <div class="kpi-grid" style="margin-bottom:16px;">
             <div class="kpi-card" style="--card-color:#06b6d4">
@@ -621,7 +737,7 @@
 
         <!-- Monthly Target -->
         <div
-            style="margin-bottom:8px;font-size:0.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">
+            class="kpi-group-label">
             Monthly Target Analytics</div>
         <div class="kpi-grid" style="margin-bottom:40px;">
             <div class="kpi-card" style="--card-color:var(--text-muted)">
@@ -644,6 +760,7 @@
         <div class="tabs">
             <button class="tab-btn active" onclick="switchTab('master', this)">Master Registry</button>
             <button class="tab-btn" onclick="switchTab('shops', this)">Shop Performance</button>
+            <button class="tab-btn" onclick="switchTab('pvs', this)">Products vs Stocks</button>
             <button class="tab-btn" onclick="switchTab('stitched', this)">Bags Stitched Summary</button>
             <button class="tab-btn" onclick="switchTab('newproducts', this)">New Products</button>
             <button class="tab-btn" onclick="switchTab('correlations', this)">Correlations</button>
@@ -686,7 +803,7 @@
 
         <!-- SHOP PERFORMANCE TAB -->
         <div id="section-shops" class="section">
-            <div class="grid-2" style="margin-bottom:24px;" id="regionCards"></div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:24px;" id="regionCards"></div>
             <div class="grid-2">
                 <div class="card">
                     <div class="card-header">
@@ -722,12 +839,117 @@
             </div>
         </div>
 
+        <!-- PRODUCTS VS STOCKS TAB -->
+        <div id="section-pvs" class="section">
+
+            <!-- Filters -->
+            <div class="card" style="padding:14px 20px;margin-bottom:20px;">
+                <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                    <span style="font-size:0.78rem;color:var(--text-muted);font-weight:600;">Filter:</span>
+                    <select id="pvsCatFilter" class="corr-ctl" onchange="renderPvs()" style="min-width:140px;">
+                        <option value="">All Categories</option>
+                    </select>
+                    <select id="pvsBtFilter" class="corr-ctl" onchange="renderPvs()" style="min-width:160px;">
+                        <option value="">All Bag Types</option>
+                    </select>
+                    <select id="pvsColorFilter" class="corr-ctl" onchange="renderPvs()" style="min-width:130px;">
+                        <option value="">All Colors</option>
+                    </select>
+                    <button class="page-btn" onclick="exportPvsExcel()" style="margin-left:auto;">Excel Export</button>
+                </div>
+            </div>
+
+            <!-- KPI strip -->
+            <div class="kpi-grid" id="pvsKpis" style="margin-bottom:24px;"></div>
+
+            <!-- Charts row 1: Sales vs Stock | Coverage ratio -->
+            <div class="grid-2" style="margin-bottom:24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Sales vs Stock by Bag Type</div>
+                        <div style="display:flex;gap:4px;">
+                            <button class="ctype-btn active" id="pvsChartBtn1" onclick="setPvsChartType('bar',this)">Bar</button>
+                            <button class="ctype-btn" id="pvsChartBtn2" onclick="setPvsChartType('horizontal',this)">Horiz</button>
+                        </div>
+                    </div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartPvsSalesStock"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Stock Coverage Ratio</div>
+                        <div style="font-size:0.72rem;color:var(--text-muted);">Stock ÷ Sales &nbsp;·&nbsp; <span style="color:#10b981;">≥1.5 ok</span> &nbsp;<span style="color:#f59e0b;">&lt;0.8 low</span> &nbsp;<span style="color:#ef4444;">&lt;0.3 critical</span></div>
+                    </div>
+                    <div class="chart-container" style="height:340px;"><canvas id="chartPvsCoverage"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Charts row 2: Sales vs Dispatch | Warehouse vs Shop Stock -->
+            <div class="grid-2" style="margin-bottom:24px;">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Sales vs Dispatch Alignment</div>
+                    </div>
+                    <div class="chart-container" style="height:300px;"><canvas id="chartPvsDispatch"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Warehouse vs Total Stock</div>
+                    </div>
+                    <div class="chart-container" style="height:300px;"><canvas id="chartPvsWarehouse"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Alignment detail table -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Product Stock Alignment Table</div>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <div class="search-box">
+                            <input type="text" id="pvsSearch" placeholder="Search bag type..."
+                                oninput="renderPvsTableFiltered(this.value)" style="width:min(200px,100%)">
+                        </div>
+                        <button class="page-btn" onclick="exportPvsExcel()">Excel Export</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="tblPvs">
+                        <thead>
+                            <tr>
+                                <th onclick="sortPvs('bag_type')">Bag Type ↕</th>
+                                <th onclick="sortPvs('category')">Category ↕</th>
+                                <th onclick="sortPvs('total_sales')" style="text-align:right;">Sales ↕</th>
+                                <th onclick="sortPvs('total_stock')" style="text-align:right;">Total Stock ↕</th>
+                                <th onclick="sortPvs('total_dispatch')" style="text-align:right;">Dispatch ↕</th>
+                                <th onclick="sortPvs('warehouse')" style="text-align:right;">Warehouse ↕</th>
+                                <th onclick="sortPvs('marketing')" style="text-align:right;">Marketing ↕</th>
+                                <th onclick="sortPvs('coverage')" style="text-align:right;">Coverage ↕</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyPvs"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <!-- BAGS STITCHED SUMMARY TAB -->
         <div id="section-stitched" class="section">
             <!-- KPI strip -->
             <div class="kpi-grid" id="stitchedKpis" style="margin-bottom:24px;"></div>
 
-            <!-- Charts row -->
+            <!-- Best performers row -->
+            <div class="grid-2" style="margin-bottom:24px;">
+                <div class="card" style="padding:20px 24px;">
+                    <div style="font-size:0.7rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:12px;">Best Bag — Stitched</div>
+                    <div id="stBestStitched" style="display:flex;flex-direction:column;gap:6px;"></div>
+                </div>
+                <div class="card" style="padding:20px 24px;">
+                    <div style="font-size:0.7rem;color:var(--text-muted);font-weight:700;text-transform:uppercase;margin-bottom:12px;">Best Bag — Finished</div>
+                    <div id="stBestFinished" style="display:flex;flex-direction:column;gap:6px;"></div>
+                </div>
+            </div>
+
+            <!-- Charts row 1: Complexity breakdown | Stitched vs Finished -->
             <div class="grid-2" style="margin-bottom:24px;">
                 <div class="card">
                     <div class="card-header">
@@ -737,24 +959,41 @@
                             <button class="ctype-btn" id="stChartBtn2" onclick="setStitchedChart('doughnut',this)">Donut</button>
                         </div>
                     </div>
-                    <div class="chart-container" style="height:340px;"><canvas id="chartStitchedComplexity"></canvas></div>
+                    <div class="chart-container" style="height:320px;"><canvas id="chartStitchedComplexity"></canvas></div>
                 </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Stitched vs Finished — Top Bag Types</div>
+                    </div>
+                    <div class="chart-container" style="height:320px;"><canvas id="chartStVsFin"></canvas></div>
+                </div>
+            </div>
+
+            <!-- Charts row 2: Category breakdown | Production flow funnel -->
+            <div class="grid-2" style="margin-bottom:24px;">
                 <div class="card">
                     <div class="card-header">
                         <div class="card-title">Bags Stitched by Category</div>
                     </div>
-                    <div class="chart-container" style="height:340px;"><canvas id="chartStitchedCategory"></canvas></div>
+                    <div class="chart-container" style="height:300px;"><canvas id="chartStitchedCategory"></canvas></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Production Flow by Bag Type</div>
+                        <div style="font-size:0.72rem;color:var(--text-muted);">Issued → Stitched → WIP → Finished</div>
+                    </div>
+                    <div class="chart-container" style="height:300px;"><canvas id="chartStFlow"></canvas></div>
                 </div>
             </div>
 
             <!-- Detail table -->
             <div class="card">
                 <div class="card-header">
-                    <div class="card-title">Complexity Breakdown Table</div>
+                    <div class="card-title">Complexity Breakdown — Stitched &amp; Finished</div>
                     <div style="display:flex;gap:10px;align-items:center;">
                         <div class="search-box">
                             <input type="text" id="stitchedSearch" placeholder="Search category / bag type..."
-                                oninput="filterStitchedTable(this.value)" style="width:220px;">
+                                oninput="filterStitchedTable(this.value)" style="width:min(220px,100%)">
                         </div>
                         <button class="page-btn" onclick="exportStitchedExcel()">Excel Export</button>
                     </div>
@@ -765,10 +1004,51 @@
                             <tr>
                                 <th>Complexity / Category / Bag Type</th>
                                 <th style="text-align:right;">Bags Stitched</th>
+                                <th style="text-align:right;">Bags Finished</th>
+                                <th style="text-align:right;">WIP → Finishing</th>
+                                <th style="text-align:right;">Completion %</th>
                                 <th style="text-align:right;">% of Total</th>
                             </tr>
                         </thead>
                         <tbody id="tbodyStitched"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Bag Type Ranking Table -->
+            <div class="card" style="margin-top:24px;">
+                <div class="card-header">
+                    <div class="card-title">Bag Type — Issued · Stitched · Finished Ranking</div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <div style="display:flex;gap:4px;align-items:center;">
+                            <span style="font-size:0.72rem;color:var(--text-muted);font-weight:600;">Sort by</span>
+                            <button class="ctype-btn active" id="stRankBtn_issued"   onclick="setStRankSort('issued',this)">Issued</button>
+                            <button class="ctype-btn"        id="stRankBtn_stitched" onclick="setStRankSort('stitched',this)">Stitched</button>
+                            <button class="ctype-btn"        id="stRankBtn_finished" onclick="setStRankSort('finished',this)">Finished</button>
+                        </div>
+                        <button class="ctype-btn" id="stRankDirBtn" onclick="toggleStRankDir()" style="min-width:90px;">↓ Desc</button>
+                        <div class="search-box">
+                            <input type="text" id="stRankSearch" placeholder="Search bag type..."
+                                oninput="buildStRankTable()" style="width:min(180px,100%)">
+                        </div>
+                        <button class="page-btn" onclick="exportStRankExcel()">Excel Export</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table id="tblStRank">
+                        <thead>
+                            <tr>
+                                <th style="width:36px;text-align:center;">#</th>
+                                <th>Bag Type</th>
+                                <th>Category</th>
+                                <th style="text-align:right;cursor:pointer;" onclick="setStRankSort('issued',document.getElementById('stRankBtn_issued'))">Issued ↕</th>
+                                <th style="text-align:right;cursor:pointer;" onclick="setStRankSort('stitched',document.getElementById('stRankBtn_stitched'))">Stitched ↕</th>
+                                <th style="text-align:right;cursor:pointer;" onclick="setStRankSort('finished',document.getElementById('stRankBtn_finished'))">Finished ↕</th>
+                                <th style="text-align:right;">WIP→Fin</th>
+                                <th style="text-align:right;">Completion %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyStRank"></tbody>
                     </table>
                 </div>
             </div>
@@ -805,8 +1085,14 @@
             <div class="card">
                 <div class="card-header">
                     <div class="card-title">Product-by-Product Pipeline Alignment</div>
-                    <div style="display:flex;gap:8px;align-items:center;">
-                        <div class="search-box"><input type="text" id="npSearch" placeholder="Search product..." oninput="filterNpTable(this.value)" style="width:200px;"></div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <select id="npProductFilter" class="corr-ctl" onchange="onNpProductChange()" style="min-width:160px;">
+                            <option value="">All Products</option>
+                        </select>
+                        <select id="npColorFilter" class="corr-ctl" onchange="buildNpTable()" style="min-width:140px;display:none;">
+                            <option value="">All Colors</option>
+                        </select>
+                        <div class="search-box"><input type="text" id="npSearch" placeholder="Search product..." oninput="filterNpTable(this.value)" style="width:min(180px,100%)"></div>
                         <button class="page-btn" onclick="exportNpExcel()">Excel Export</button>
                     </div>
                 </div>
@@ -908,7 +1194,7 @@
                     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                         <div class="search-box">
                             <input type="text" id="corrSummarySearch" placeholder="Search category..."
-                                oninput="filterCorrSummary(this.value)" style="width:160px;">
+                                oninput="filterCorrSummary(this.value)" style="width:min(160px,100%)">
                         </div>
                         <button class="page-btn" onclick="exportCorrSummaryExcel()">Excel Export</button>
                     </div>
@@ -1078,7 +1364,7 @@
                     <div style="display:flex;gap:10px;align-items:center;">
                         <div class="search-box">
                             <input type="text" id="revSearch" placeholder="Search bag type..."
-                                oninput="filterRevTable(this.value)" style="width:200px;">
+                                oninput="filterRevTable(this.value)" style="width:min(200px,100%)">
                         </div>
                         <button class="page-btn" onclick="exportRevExcel()">Excel Export</button>
                     </div>
@@ -1147,7 +1433,7 @@
         let currentPage = 1, rowsPerPage = 15, sortCol = '', sortAsc = true;
         let charts = {};
         let corrMatrixData = null, selectedVars = [];
-        let newProductsSummary = {}, newProductsData = [], npShopDetail = [];
+        let newProductsSummary = {}, newProductsData = [], npShopDetail = [], npColorData = {};
         let _npSortCol = 'total_sales', _npSortAsc = false, _npFilter = '';
         let _svsView = 'chart';
 
@@ -1173,7 +1459,9 @@
                 stitchedData = data.stitched_data || [];
                 newProductsSummary = data.new_products_summary || {};
                 newProductsData    = data.new_products_data || [];
+                npColorData        = data.new_products_color_data || {};
                 npShopDetail       = data.new_products_shop_detail || [];
+                _buildNpProductDropdown();
 
                 updateKPIs(data.summary);
                 updateFilters(data.filters);
@@ -1233,7 +1521,7 @@
         function updateFilters(f) {
             const fill = (id, items) => {
                 const el = document.getElementById(id);
-                if (el.options.length > 1) return;
+                if (!el || el.options.length > 1) return;
                 items.forEach(i => el.add(new Option(i, i)));
             };
             fill('catFilter', f.categories);
@@ -1242,6 +1530,10 @@
             fill('colorFilter', f.colors);
             fill('regionFilter', f.regions || []);
             fill('shopFilter', f.shops || []);
+            // Products vs Stocks tab filters
+            fill('pvsCatFilter',   f.categories);
+            fill('pvsBtFilter',    f.bagtypes);
+            fill('pvsColorFilter', f.colors);
         }
 
         function renderTable() {
@@ -1914,6 +2206,7 @@
             if (name === 'revenue') renderRevenue();
             if (name === 'stitched') renderStitched();
             if (name === 'newproducts') renderNewProducts();
+            if (name === 'pvs') renderPvs();
         }
 
         // ── REVENUE BREAKDOWN ────────────────────────────────────────────────────────
@@ -2164,7 +2457,7 @@
         // ── BAGS STITCHED SUMMARY ────────────────────────────────────────────────
         let _stChartType = 'bar', _stFilter = '';
         const _stExpanded = new Set();
-        let _stChartComplexity = null, _stChartCategory = null;
+        let _stChartComplexity = null, _stChartCategory = null, _stChartStVsFin = null, _stChartFlow = null;
 
         function renderStitched() {
             if (!stitchedData || !stitchedData.length) {
@@ -2173,19 +2466,33 @@
                 return;
             }
             buildStitchedKpis();
+            buildStitchedBestPanels();
             buildStitchedCharts();
             buildStitchedTable();
+            buildStRankTable();
         }
+
+        // ---- aggregate helpers ----
+
+        function _stGet(r, col) { return +(r[col] || 0); }
 
         function _stComplexityMap() {
             const map = {};
             stitchedData.forEach(r => {
                 const cx = r.Complexity || 'Unspecified';
-                if (!map[cx]) map[cx] = { Complexity: cx, total: 0, categories: {} };
-                map[cx].total += (r['Bags stitched'] || 0);
+                if (!map[cx]) map[cx] = {
+                    Complexity: cx, stitched: 0, finished: 0, wip_fin: 0, issued: 0, categories: {}
+                };
+                const g = map[cx];
+                g.stitched += _stGet(r, 'Bags stitched');
+                g.finished += _stGet(r, 'Bags finished');
+                g.wip_fin  += _stGet(r, 'WIP to finishing');
+                g.issued   += _stGet(r, 'Bags issued for stitching');
                 const cat = r.Category || 'Other';
-                if (!map[cx].categories[cat]) map[cx].categories[cat] = 0;
-                map[cx].categories[cat] += (r['Bags stitched'] || 0);
+                if (!g.categories[cat]) g.categories[cat] = { stitched: 0, finished: 0, wip_fin: 0 };
+                g.categories[cat].stitched += _stGet(r, 'Bags stitched');
+                g.categories[cat].finished += _stGet(r, 'Bags finished');
+                g.categories[cat].wip_fin  += _stGet(r, 'WIP to finishing');
             });
             return map;
         }
@@ -2194,67 +2501,167 @@
             const map = {};
             stitchedData.forEach(r => {
                 const cat = r.Category || 'Other';
-                if (!map[cat]) map[cat] = { Category: cat, total: 0 };
-                map[cat].total += (r['Bags stitched'] || 0);
+                if (!map[cat]) map[cat] = { Category: cat, stitched: 0, finished: 0 };
+                map[cat].stitched += _stGet(r, 'Bags stitched');
+                map[cat].finished += _stGet(r, 'Bags finished');
             });
             return map;
         }
 
+        function _stBagTypeMap() {
+            // Build issued lookup from fullData (PRODUCTION sheet) since stitchedData (WAREHOUSE) lacks it
+            const issuedByBt = {};
+            fullData.forEach(r => {
+                const bt = r['Bag Type'] || '—';
+                issuedByBt[bt] = (issuedByBt[bt] || 0) + (+r['Bags issued for stitching'] || 0);
+            });
+            const map = {};
+            stitchedData.forEach(r => {
+                const bt = r['Bag Type'] || '—';
+                if (!map[bt]) map[bt] = {
+                    bag_type: bt, category: r.Category || 'Other',
+                    stitched: 0, finished: 0, wip_fin: 0, issued: 0
+                };
+                const g = map[bt];
+                g.stitched += _stGet(r, 'Bags stitched');
+                g.finished += _stGet(r, 'Bags finished');
+                g.wip_fin  += _stGet(r, 'WIP to finishing');
+            });
+            // Overlay issued counts from master
+            Object.keys(map).forEach(bt => { map[bt].issued = issuedByBt[bt] || 0; });
+            return map;
+        }
+
+        // fallback: if Bags finished is all zeros in stitchedData, read from fullData
+        function _stFinFromMaster(bagType) {
+            return fullData.filter(r => !bagType || r['Bag Type'] === bagType)
+                           .reduce((s, r) => s + (+r['Bags finished'] || 0), 0);
+        }
+
+        function _stEnsureFinished(btMap) {
+            const allFin = Object.values(btMap).reduce((s, v) => s + v.finished, 0);
+            if (allFin > 0) return btMap;
+            // fallback to master data
+            Object.values(btMap).forEach(bt => {
+                bt.finished = _stFinFromMaster(bt.bag_type);
+            });
+            return btMap;
+        }
+
+        // ---- KPIs ----
+
         function buildStitchedKpis() {
             const fmt = n => Number(n||0).toLocaleString();
-            const grandTotal = stitchedData.reduce((s,r) => s + (r['Bags stitched']||0), 0);
-            const cxMap = _stComplexityMap();
-            const cxList = Object.values(cxMap).sort((a,b) => b.total - a.total);
-            const topCx = cxList[0];
-            const catMap = _stCategoryMap();
-            const catList = Object.values(catMap).sort((a,b) => b.total - a.total);
+            const totalStitched = stitchedData.reduce((s,r) => s + _stGet(r,'Bags stitched'), 0);
+            let   totalFinished = stitchedData.reduce((s,r) => s + _stGet(r,'Bags finished'), 0);
+            if (!totalFinished) totalFinished = _stFinFromMaster('');
+            const totalWipFin   = stitchedData.reduce((s,r) => s + _stGet(r,'WIP to finishing'), 0);
+            // "Bags issued for stitching" comes from PRODUCTION sheet (prod_df), not WAREHOUSE — read from master
+            const totalIssued = fullData.reduce((s,r) => s + (+r['Bags issued for stitching'] || 0), 0);
+
+            const cxList = Object.values(_stComplexityMap()).sort((a,b) => b.stitched - a.stitched);
+            const topCx  = cxList[0];
+            const catList = Object.values(_stCategoryMap()).sort((a,b) => b.stitched - a.stitched);
             const topCat = catList[0];
-            const numComplexities = cxList.length;
+            const completionRate = totalStitched > 0 ? (totalFinished / totalStitched * 100).toFixed(1) : '—';
 
             document.getElementById('stitchedKpis').innerHTML = `
-                <div class="kpi-card">
+                <div class="kpi-card" style="--card-color:#818cf8;">
                     <div class="kpi-label">Total Bags Stitched</div>
-                    <div class="kpi-value" style="color:var(--accent);">${fmt(grandTotal)}</div>
-                    <div class="kpi-sub">${numComplexities} complexity tier${numComplexities!==1?'s':''}</div>
+                    <div class="kpi-value" style="color:#818cf8;">${fmt(totalStitched)}</div>
+                    <div class="kpi-trend">${cxList.length} complexity tier${cxList.length!==1?'s':''}</div>
                 </div>
-                <div class="kpi-card">
+                <div class="kpi-card" style="--card-color:#10b981;">
+                    <div class="kpi-label">Total Bags Finished</div>
+                    <div class="kpi-value" style="color:#10b981;">${fmt(totalFinished)}</div>
+                    <div class="kpi-trend">collected &amp; ready</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#f97316;">
+                    <div class="kpi-label">WIP → Finishing</div>
+                    <div class="kpi-value" style="color:#f97316;">${fmt(totalWipFin)}</div>
+                    <div class="kpi-trend">in finishing stage</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#38bdf8;">
+                    <div class="kpi-label">Issued for Stitching</div>
+                    <div class="kpi-value" style="color:#38bdf8;">${fmt(totalIssued)}</div>
+                    <div class="kpi-trend">cut bags issued</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#a78bfa;">
+                    <div class="kpi-label">Completion Rate</div>
+                    <div class="kpi-value" style="color:#a78bfa;">${completionRate}${completionRate!=='—'?'%':''}</div>
+                    <div class="kpi-trend">Finished ÷ Stitched</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#f59e0b;">
                     <div class="kpi-label">Top Complexity Tier</div>
-                    <div class="kpi-value" style="color:var(--success);">${topCx ? topCx.Complexity : '—'}</div>
-                    <div class="kpi-sub">${topCx ? fmt(topCx.total) + ' bags' : ''}</div>
+                    <div class="kpi-value" style="color:#f59e0b;font-size:clamp(0.9rem,2vw,1.4rem);line-height:1.2;">${topCx ? topCx.Complexity : '—'}</div>
+                    <div class="kpi-trend">${topCx ? fmt(topCx.stitched) + ' stitched' : ''}</div>
                 </div>
-                <div class="kpi-card">
+                <div class="kpi-card" style="--card-color:#ef4444;">
                     <div class="kpi-label">Top Category</div>
-                    <div class="kpi-value" style="color:var(--accent-secondary);">${topCat ? topCat.Category : '—'}</div>
-                    <div class="kpi-sub">${topCat ? fmt(topCat.total) + ' bags' : ''}</div>
-                </div>
-                <div class="kpi-card">
-                    <div class="kpi-label">Categories Tracked</div>
-                    <div class="kpi-value" style="color:var(--warning);">${catList.length}</div>
-                    <div class="kpi-sub">across all complexity tiers</div>
+                    <div class="kpi-value" style="color:#ef4444;font-size:clamp(0.9rem,2vw,1.4rem);line-height:1.2;">${topCat ? topCat.Category : '—'}</div>
+                    <div class="kpi-trend">${topCat ? fmt(topCat.stitched) + ' stitched' : ''}</div>
                 </div>`;
         }
 
-        function buildStitchedCharts() {
-            const COLOURS = ['#38bdf8','#818cf8','#10b981','#f59e0b','#ef4444','#a78bfa','#34d399','#fbbf24','#f87171','#60a5fa'];
-            const cxMap  = _stComplexityMap();
-            const cxList = Object.values(cxMap).sort((a,b) => b.total - a.total);
-            const catMap = _stCategoryMap();
-            const catList = Object.values(catMap).sort((a,b) => b.total - a.total);
+        // ---- Best Performers Panels ----
 
-            // Chart 1 — complexity
+        function buildStitchedBestPanels() {
+            const fmt = n => Number(n||0).toLocaleString();
+            let btMap = _stBagTypeMap();
+            btMap = _stEnsureFinished(btMap);
+            const btList = Object.values(btMap);
+            const topStitched = [...btList].sort((a,b) => b.stitched - a.stitched).slice(0,5);
+            const topFinished = [...btList].sort((a,b) => b.finished - a.finished).slice(0,5);
+            const maxSt = topStitched[0]?.stitched || 1;
+            const maxFin = topFinished[0]?.finished || 1;
+
+            const renderPanel = (items, valKey, color, maxVal) => items.map((r,i) => {
+                const v = r[valKey] || 0;
+                const pct = Math.min(100, Math.round(v / maxVal * 100));
+                return `<div style="display:flex;flex-direction:column;gap:3px;">
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;">
+                        <span style="font-size:0.8rem;font-weight:${i===0?'700':'500'};color:${i===0?color:'var(--text)'}">${r.bag_type}</span>
+                        <span style="font-size:0.8rem;font-weight:700;color:${color};">${fmt(v)}</span>
+                    </div>
+                    <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+                        <div style="width:${pct}%;height:100%;background:${color};border-radius:3px;opacity:0.85;"></div>
+                    </div>
+                    <div style="font-size:0.68rem;color:var(--text-muted);">${r.category}</div>
+                </div>`;
+            }).join('');
+
+            document.getElementById('stBestStitched').innerHTML = topStitched.length
+                ? renderPanel(topStitched, 'stitched', '#818cf8', maxSt)
+                : `<span style="color:var(--text-muted);font-size:0.8rem;">No data</span>`;
+            document.getElementById('stBestFinished').innerHTML = topFinished.length && topFinished[0].finished > 0
+                ? renderPanel(topFinished, 'finished', '#10b981', maxFin)
+                : `<span style="color:var(--text-muted);font-size:0.8rem;">Finished data not available in WAREHOUSE sheet.</span>`;
+        }
+
+        // ---- Charts ----
+
+        function buildStitchedCharts() {
+            const COLOURS = ['#818cf8','#10b981','#f59e0b','#38bdf8','#ef4444','#a78bfa','#34d399','#fbbf24','#f87171','#60a5fa'];
+            const cxMap  = _stComplexityMap();
+            const cxList = Object.values(cxMap).sort((a,b) => b.stitched - a.stitched);
+            const catMap = _stCategoryMap();
+            const catList = Object.values(catMap).sort((a,b) => b.stitched - a.stitched);
+            let btMap = _stBagTypeMap();
+            btMap = _stEnsureFinished(btMap);
+            const btTop = Object.values(btMap).sort((a,b) => b.stitched - a.stitched).slice(0,12);
+
+            // Chart 1 — complexity (bar or donut)
             if (_stChartComplexity) _stChartComplexity.destroy();
             const ctx1 = document.getElementById('chartStitchedComplexity').getContext('2d');
-            const labels1 = cxList.map(c => c.Complexity);
-            const vals1   = cxList.map(c => c.total);
             const isDonut = _stChartType === 'doughnut';
             _stChartComplexity = new Chart(ctx1, {
                 type: _stChartType,
                 data: {
-                    labels: labels1,
+                    labels: cxList.map(c => c.Complexity),
                     datasets: [{
                         label: 'Bags Stitched',
-                        data: vals1,
-                        backgroundColor: isDonut ? COLOURS.slice(0, labels1.length) : COLOURS[0],
+                        data: cxList.map(c => c.stitched),
+                        backgroundColor: isDonut ? COLOURS.slice(0, cxList.length) : COLOURS[0],
                         borderColor: isDonut ? 'transparent' : COLOURS[0],
                         borderRadius: isDonut ? 0 : 6,
                         borderWidth: 1
@@ -2270,44 +2677,102 @@
                 }
             });
 
-            // Chart 2 — category horizontal bar
-            if (_stChartCategory) _stChartCategory.destroy();
-            const ctx2 = document.getElementById('chartStitchedCategory').getContext('2d');
-            const labels2 = catList.map(c => c.Category);
-            const vals2   = catList.map(c => c.total);
-            _stChartCategory = new Chart(ctx2, {
+            // Chart 2 — Stitched vs Finished grouped bar by Bag Type
+            if (_stChartStVsFin) _stChartStVsFin.destroy();
+            const ctx2 = document.getElementById('chartStVsFin').getContext('2d');
+            _stChartStVsFin = new Chart(ctx2, {
                 type: 'bar',
                 data: {
-                    labels: labels2,
-                    datasets: [{
-                        label: 'Bags Stitched',
-                        data: vals2,
-                        backgroundColor: COLOURS[1],
-                        borderColor: COLOURS[1],
-                        borderRadius: 6,
-                        borderWidth: 1
-                    }]
+                    labels: btTop.map(r => r.bag_type),
+                    datasets: [
+                        {
+                            label: 'Bags Stitched',
+                            data: btTop.map(r => r.stitched),
+                            backgroundColor: 'rgba(129,140,248,0.85)',
+                            borderColor: '#818cf8',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        },
+                        {
+                            label: 'Bags Finished',
+                            data: btTop.map(r => r.finished),
+                            backgroundColor: 'rgba(16,185,129,0.85)',
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8', maxRotation: 35, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#94a3b8' },                                       grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+
+            // Chart 3 — Category horizontal bar (stitched vs finished stacked)
+            if (_stChartCategory) _stChartCategory.destroy();
+            const ctx3 = document.getElementById('chartStitchedCategory').getContext('2d');
+            _stChartCategory = new Chart(ctx3, {
+                type: 'bar',
+                data: {
+                    labels: catList.map(c => c.Category),
+                    datasets: [
+                        { label: 'Stitched', data: catList.map(c => c.stitched), backgroundColor: 'rgba(129,140,248,0.85)', borderColor: '#818cf8', borderWidth: 1 },
+                        { label: 'Finished', data: catList.map(c => c.finished), backgroundColor: 'rgba(16,185,129,0.85)',  borderColor: '#10b981', borderWidth: 1 }
+                    ]
                 },
                 options: {
                     indexAxis: 'y',
                     responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
                     scales: {
                         x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
                         y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
                     }
                 }
             });
+
+            // Chart 4 — Production flow: Issued → Stitched → WIP → Finished (top 10 by stitched)
+            if (_stChartFlow) _stChartFlow.destroy();
+            const ctx4 = document.getElementById('chartStFlow').getContext('2d');
+            const flowTop = Object.values(btMap).sort((a,b) => b.stitched - a.stitched).slice(0,10);
+            _stChartFlow = new Chart(ctx4, {
+                type: 'bar',
+                data: {
+                    labels: flowTop.map(r => r.bag_type),
+                    datasets: [
+                        { label: 'Issued',        data: flowTop.map(r => r.issued),   backgroundColor: 'rgba(56,189,248,0.75)',  borderColor: '#38bdf8', borderWidth: 1, borderRadius: 3 },
+                        { label: 'Stitched',      data: flowTop.map(r => r.stitched), backgroundColor: 'rgba(129,140,248,0.85)', borderColor: '#818cf8', borderWidth: 1, borderRadius: 3 },
+                        { label: 'WIP→Finishing', data: flowTop.map(r => r.wip_fin),  backgroundColor: 'rgba(249,115,22,0.75)',  borderColor: '#f97316', borderWidth: 1, borderRadius: 3 },
+                        { label: 'Finished',      data: flowTop.map(r => r.finished), backgroundColor: 'rgba(16,185,129,0.85)',  borderColor: '#10b981', borderWidth: 1, borderRadius: 3 },
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8', maxRotation: 35, font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#94a3b8' },                                       grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
         }
+
+        // ---- Detail Table ----
 
         function buildStitchedTable() {
             const q = _stFilter.toLowerCase();
-            const grandTotal = stitchedData.reduce((s,r) => s + (r['Bags stitched']||0), 0);
-            const fmt = n => Number(n||0).toLocaleString();
-            const pct = n => grandTotal > 0 ? (n / grandTotal * 100).toFixed(1) + '%' : '0%';
+            const grandTotalSt  = stitchedData.reduce((s,r) => s + _stGet(r,'Bags stitched'), 0);
+            const fmt  = n => Number(n||0).toLocaleString();
+            const pct  = n => grandTotalSt > 0 ? (n / grandTotalSt * 100).toFixed(1) + '%' : '0%';
+            const cRate = (st, fin) => st > 0 ? `${(fin/st*100).toFixed(1)}%` : '—';
 
             const cxMap = _stComplexityMap();
-            const cxList = Object.values(cxMap).sort((a,b) => b.total - a.total)
+            const cxList = Object.values(cxMap).sort((a,b) => b.stitched - a.stitched)
                 .filter(cx => !q || cx.Complexity.toLowerCase().includes(q) ||
                     Object.keys(cx.categories).some(cat => cat.toLowerCase().includes(q)) ||
                     stitchedData.some(r => r.Complexity === cx.Complexity && ((r['Bag Type']||'').toLowerCase().includes(q))));
@@ -2315,37 +2780,59 @@
             let html = '';
             cxList.forEach(cx => {
                 const open = _stExpanded.has(cx.Complexity);
+                const cr = cRate(cx.stitched, cx.finished);
+                const crColor = cx.finished === 0 ? 'var(--text-muted)' :
+                                cx.finished >= cx.stitched * 0.9 ? '#10b981' :
+                                cx.finished >= cx.stitched * 0.5 ? '#f59e0b' : '#ef4444';
                 html += `<tr class="corr-cat-row" onclick="toggleStitchedCx('${cx.Complexity.replace(/'/g,"\\'")}')">
                     <td style="font-weight:700;white-space:nowrap;">
                         <span style="color:var(--accent);margin-right:5px;font-size:0.8rem;">${open?'▾':'▸'}</span>
                         ${cx.Complexity}
                         <span style="font-size:0.68rem;color:var(--text-muted);margin-left:5px;">${Object.keys(cx.categories).length} categor${Object.keys(cx.categories).length!==1?'ies':'y'}</span>
                     </td>
-                    <td style="text-align:right;font-weight:700;color:var(--accent);">${fmt(cx.total)}</td>
-                    <td style="text-align:right;color:var(--text-muted);">${pct(cx.total)}</td>
+                    <td style="text-align:right;font-weight:700;color:#818cf8;">${fmt(cx.stitched)}</td>
+                    <td style="text-align:right;font-weight:700;color:#10b981;">${fmt(cx.finished)}</td>
+                    <td style="text-align:right;color:#f97316;">${fmt(cx.wip_fin)}</td>
+                    <td style="text-align:right;font-weight:700;color:${crColor};">${cr}</td>
+                    <td style="text-align:right;color:var(--text-muted);">${pct(cx.stitched)}</td>
                 </tr>`;
                 if (open) {
-                    // Group by category, then bag type
-                    const catEntries = Object.entries(cx.categories).sort((a,b) => b[1]-a[1]);
-                    catEntries.forEach(([cat, catTotal]) => {
+                    const catEntries = Object.entries(cx.categories).sort((a,b) => b[1].stitched - a[1].stitched);
+                    catEntries.forEach(([cat, cv]) => {
                         const bagRows = stitchedData
                             .filter(r => r.Complexity === cx.Complexity && (r.Category || 'Other') === cat)
-                            .sort((a,b) => (b['Bags stitched']||0) - (a['Bags stitched']||0));
+                            .sort((a,b) => _stGet(b,'Bags stitched') - _stGet(a,'Bags stitched'));
+                        const catCr = cRate(cv.stitched, cv.finished);
+                        const catCrColor = cv.finished === 0 ? 'var(--text-muted)' :
+                                           cv.finished >= cv.stitched * 0.9 ? '#10b981' :
+                                           cv.finished >= cv.stitched * 0.5 ? '#f59e0b' : '#ef4444';
                         html += `<tr class="corr-bt-row" onclick="toggleStitchedCat('${cx.Complexity.replace(/'/g,"\\'")}','${cat.replace(/'/g,"\\'")}')">
                             <td style="padding-left:24px;font-weight:600;">
                                 <span style="color:var(--accent-secondary);margin-right:5px;font-size:0.75rem;">${_stCatExpanded(cx.Complexity,cat)?'▾':'▸'}</span>
                                 ${cat}
                                 <span style="font-size:0.65rem;color:var(--text-muted);margin-left:4px;">${bagRows.length} bag type${bagRows.length!==1?'s':''}</span>
                             </td>
-                            <td style="text-align:right;font-weight:600;color:var(--accent-secondary);">${fmt(catTotal)}</td>
-                            <td style="text-align:right;color:var(--text-muted);">${pct(catTotal)}</td>
+                            <td style="text-align:right;font-weight:600;color:#818cf8;">${fmt(cv.stitched)}</td>
+                            <td style="text-align:right;font-weight:600;color:#10b981;">${fmt(cv.finished)}</td>
+                            <td style="text-align:right;color:#f97316;">${fmt(cv.wip_fin)}</td>
+                            <td style="text-align:right;color:${catCrColor};">${catCr}</td>
+                            <td style="text-align:right;color:var(--text-muted);">${pct(cv.stitched)}</td>
                         </tr>`;
                         if (_stCatExpanded(cx.Complexity, cat)) {
                             bagRows.forEach(r => {
+                                const st  = _stGet(r,'Bags stitched');
+                                const fin = _stGet(r,'Bags finished');
+                                const wip = _stGet(r,'WIP to finishing');
+                                const rowCr = cRate(st, fin);
+                                const rowCrColor = fin === 0 ? 'var(--text-muted)' :
+                                                   fin >= st*0.9 ? '#10b981' : fin >= st*0.5 ? '#f59e0b' : '#ef4444';
                                 html += `<tr>
                                     <td style="padding-left:48px;color:var(--text-muted);">↳ ${r['Bag Type']||'—'}</td>
-                                    <td style="text-align:right;">${fmt(r['Bags stitched']||0)}</td>
-                                    <td style="text-align:right;color:var(--text-muted);">${pct(r['Bags stitched']||0)}</td>
+                                    <td style="text-align:right;color:#818cf8;">${fmt(st)}</td>
+                                    <td style="text-align:right;color:#10b981;">${fmt(fin)}</td>
+                                    <td style="text-align:right;color:#f97316;">${fmt(wip)}</td>
+                                    <td style="text-align:right;color:${rowCrColor};">${rowCr}</td>
+                                    <td style="text-align:right;color:var(--text-muted);">${pct(st)}</td>
                                 </tr>`;
                             });
                         }
@@ -2353,7 +2840,7 @@
                 }
             });
             document.getElementById('tbodyStitched').innerHTML = html ||
-                `<tr><td colspan="3" style="text-align:center;color:var(--text-muted);padding:20px;">No matching results</td></tr>`;
+                `<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:20px;">No matching results</td></tr>`;
         }
 
         const _stCatExpandedSet = new Set();
@@ -2384,23 +2871,171 @@
 
         function exportStitchedExcel() {
             if (!stitchedData.length) return;
-            const headers = ['Complexity', 'Category', 'Bag Type', 'Bags Stitched'];
+            const headers = ['Complexity','Category','Bag Type','Bags Stitched','Bags Finished','WIP→Finishing','Issued','Completion %'];
             const rows = [headers];
             const cxMap = _stComplexityMap();
-            Object.values(cxMap).sort((a,b) => b.total - a.total).forEach(cx => {
-                rows.push([cx.Complexity, '(All Categories)', '', cx.total]);
-                Object.entries(cx.categories).sort((a,b) => b[1]-a[1]).forEach(([cat, catTotal]) => {
-                    rows.push([cx.Complexity, cat, '(Category Total)', catTotal]);
-                    stitchedData.filter(r => r.Complexity === cx.Complexity && (r.Category||'Other') === cat)
-                        .sort((a,b) => (b['Bags stitched']||0) - (a['Bags stitched']||0))
-                        .forEach(r => rows.push([cx.Complexity, cat, r['Bag Type']||'', r['Bags stitched']||0]));
+            const cRate = (st,fin) => st > 0 ? (fin/st*100).toFixed(1)+'%' : '—';
+            let btMap = _stBagTypeMap();
+            btMap = _stEnsureFinished(btMap);
+            Object.values(cxMap).sort((a,b) => b.stitched - a.stitched).forEach(cx => {
+                rows.push([cx.Complexity,'(All)','',cx.stitched,cx.finished,cx.wip_fin,cx.issued,cRate(cx.stitched,cx.finished)]);
+                Object.entries(cx.categories).sort((a,b) => b[1].stitched - a[1].stitched).forEach(([cat,cv]) => {
+                    rows.push([cx.Complexity,cat,'(Category)',cv.stitched,cv.finished,cv.wip_fin,'',cRate(cv.stitched,cv.finished)]);
+                    stitchedData.filter(r => r.Complexity===cx.Complexity && (r.Category||'Other')===cat)
+                        .sort((a,b) => _stGet(b,'Bags stitched') - _stGet(a,'Bags stitched'))
+                        .forEach(r => {
+                            const st=_stGet(r,'Bags stitched'), fin=_stGet(r,'Bags finished');
+                            rows.push([cx.Complexity,cat,r['Bag Type']||'',st,fin,
+                                       _stGet(r,'WIP to finishing'),_stGet(r,'Bags issued for stitching'),cRate(st,fin)]);
+                        });
                 });
             });
-            const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-            a.download = `Bags_Stitched_Summary_${new Date().toISOString().slice(0,10)}.csv`;
-            a.click();
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'Stitched vs Finished');
+            XLSX.writeFile(wb, `Stitched_Finished_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        // ── BAG TYPE RANKING TABLE (Issued · Stitched · Finished) ────────────────
+        let _stRankSortCol = 'issued', _stRankAsc = false;
+
+        function setStRankSort(col, btn) {
+            if (_stRankSortCol === col) {
+                _stRankAsc = !_stRankAsc;
+            } else {
+                _stRankSortCol = col;
+                _stRankAsc = false;
+            }
+            document.querySelectorAll('[id^="stRankBtn_"]').forEach(b => b.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            _updateStRankDirBtn();
+            buildStRankTable();
+        }
+
+        function toggleStRankDir() {
+            _stRankAsc = !_stRankAsc;
+            _updateStRankDirBtn();
+            buildStRankTable();
+        }
+
+        function _updateStRankDirBtn() {
+            const btn = document.getElementById('stRankDirBtn');
+            if (btn) btn.textContent = _stRankAsc ? '↑ Asc' : '↓ Desc';
+        }
+
+        function buildStRankTable() {
+            const fmt  = n => Number(n || 0).toLocaleString();
+            const cRate = (st, fin) => st > 0 ? (fin / st * 100).toFixed(1) + '%' : '—';
+            const q = (document.getElementById('stRankSearch')?.value || '').trim().toLowerCase();
+
+            // Build per-bag-type aggregation from fullData (for issued) + stitchedData (for stitched/finished/wip)
+            const issuedByBt = {};
+            fullData.forEach(r => {
+                const bt = r['Bag Type'] || '—';
+                issuedByBt[bt] = (issuedByBt[bt] || 0) + (+r['Bags issued for stitching'] || 0);
+            });
+
+            const map = {};
+            stitchedData.forEach(r => {
+                const bt = r['Bag Type'] || '—';
+                if (!map[bt]) map[bt] = { bag_type: bt, category: r.Category || 'Other', stitched: 0, finished: 0, wip_fin: 0 };
+                map[bt].stitched += _stGet(r, 'Bags stitched');
+                map[bt].finished += _stGet(r, 'Bags finished');
+                map[bt].wip_fin  += _stGet(r, 'WIP to finishing');
+            });
+
+            // Merge in finished from master if missing
+            const allFin = Object.values(map).reduce((s, v) => s + v.finished, 0);
+            if (!allFin) {
+                fullData.forEach(r => {
+                    const bt = r['Bag Type'] || '—';
+                    if (map[bt]) map[bt].finished += (+r['Bags finished'] || 0);
+                });
+            }
+
+            // Attach issued
+            Object.keys(map).forEach(bt => { map[bt].issued = issuedByBt[bt] || 0; });
+
+            // Also include bag types that only appear in fullData (issued > 0 but not in stitchedData)
+            Object.keys(issuedByBt).forEach(bt => {
+                if (!map[bt] && issuedByBt[bt] > 0) {
+                    const masterRow = fullData.find(r => r['Bag Type'] === bt);
+                    map[bt] = {
+                        bag_type: bt,
+                        category: masterRow?.['Category'] || 'Other',
+                        stitched: fullData.filter(r => r['Bag Type'] === bt).reduce((s,r) => s + (+r['Bags stitched']||0), 0),
+                        finished: fullData.filter(r => r['Bag Type'] === bt).reduce((s,r) => s + (+r['Bags finished']||0), 0),
+                        wip_fin:  fullData.filter(r => r['Bag Type'] === bt).reduce((s,r) => s + (+r['WIP to finishing']||0), 0),
+                        issued:   issuedByBt[bt],
+                    };
+                }
+            });
+
+            // Only rows with at least one value > 0
+            let rows = Object.values(map).filter(r => r.issued > 0 || r.stitched > 0 || r.finished > 0);
+
+            // Search filter
+            if (q) rows = rows.filter(r => r.bag_type.toLowerCase().includes(q) || r.category.toLowerCase().includes(q));
+
+            // Sort
+            rows.sort((a, b) => {
+                const va = a[_stRankSortCol] ?? 0, vb = b[_stRankSortCol] ?? 0;
+                return _stRankAsc ? va - vb : vb - va;
+            });
+
+            const tbody = document.getElementById('tbodyStRank');
+            if (!rows.length) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:28px;color:var(--text-muted);">No data with entries greater than zero.</td></tr>`;
+                return;
+            }
+
+            const maxIssued   = Math.max(...rows.map(r => r.issued),   1);
+            const maxStitched = Math.max(...rows.map(r => r.stitched), 1);
+            const maxFinished = Math.max(...rows.map(r => r.finished), 1);
+
+            // Color-coded bar cell
+            const barCell = (val, max, color) => {
+                const pct = Math.min(100, Math.round(val / max * 100));
+                return `<td style="text-align:right;padding:8px 14px;">
+                    <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+                        <span style="font-weight:700;color:${color};">${fmt(val)}</span>
+                        <div style="width:44px;height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;">
+                            <div style="width:${pct}%;height:100%;background:${color};border-radius:3px;"></div>
+                        </div>
+                    </div>
+                </td>`;
+            };
+
+            tbody.innerHTML = rows.map((r, i) => {
+                const cr = cRate(r.stitched, r.finished);
+                const crColor = r.finished === 0 ? 'var(--text-muted)' :
+                                r.finished >= r.stitched * 0.9 ? '#10b981' :
+                                r.finished >= r.stitched * 0.5 ? '#f59e0b' : '#ef4444';
+                const isTop = i === 0;
+                return `<tr style="${isTop ? 'background:rgba(255,255,255,0.03);' : ''}">
+                    <td style="text-align:center;padding:8px 10px;font-size:0.75rem;font-weight:700;color:${isTop?'#f59e0b':'var(--text-muted)'};">${i + 1}</td>
+                    <td style="padding:8px 14px;font-weight:${isTop?'700':'600'};">${r.bag_type}</td>
+                    <td style="padding:8px 14px;color:var(--text-muted);font-size:0.8rem;">${r.category}</td>
+                    ${barCell(r.issued,   maxIssued,   '#38bdf8')}
+                    ${barCell(r.stitched, maxStitched, '#818cf8')}
+                    ${barCell(r.finished, maxFinished, '#10b981')}
+                    <td style="text-align:right;padding:8px 14px;color:#f97316;">${fmt(r.wip_fin)}</td>
+                    <td style="text-align:right;padding:8px 14px;font-weight:600;color:${crColor};">${cr}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function exportStRankExcel() {
+            const rows = [];
+            rows.push(['#', 'Bag Type', 'Category', 'Issued', 'Stitched', 'Finished', 'WIP→Finishing', 'Completion %']);
+            const tbody = document.getElementById('tbodyStRank');
+            if (!tbody) return;
+            tbody.querySelectorAll('tr').forEach((tr, i) => {
+                const cells = [...tr.querySelectorAll('td')];
+                if (cells.length >= 8) rows.push(cells.map(c => c.textContent.trim()));
+            });
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'Bag Type Ranking');
+            XLSX.writeFile(wb, `BagType_Ranking_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
         function refreshData() { document.getElementById('loader').style.display = 'flex'; loadDashboard(); }
@@ -2737,54 +3372,124 @@
             buildNpTable();
         }
 
+        function _buildNpProductDropdown() {
+            const sel = document.getElementById('npProductFilter');
+            if (!sel) return;
+            const products = newProductsData.map(r => r.product).filter(Boolean).sort();
+            sel.innerHTML = '<option value="">All Products</option>' +
+                products.map(p => `<option value="${p}">${p}</option>`).join('');
+        }
+
+        function onNpProductChange() {
+            const product = document.getElementById('npProductFilter')?.value || '';
+            const colorSel = document.getElementById('npColorFilter');
+            if (!colorSel) return;
+            if (!product) {
+                colorSel.style.display = 'none';
+                colorSel.value = '';
+            } else {
+                const colors = (npColorData[product] || []).map(r => r.color).filter(Boolean).sort();
+                colorSel.innerHTML = '<option value="">All Colors</option>' +
+                    colors.map(c => `<option value="${c}">${c}</option>`).join('');
+                colorSel.style.display = colors.length ? '' : 'none';
+            }
+            buildNpTable();
+        }
+
         function buildNpHead() {
             const vis = NP_COLS.filter(c => c.visible);
+            const product = document.getElementById('npProductFilter')?.value || '';
+            const secondCol = product
+                ? `<th onclick="sortNp('color')" style="color:var(--accent-light);">Color ↕</th>`
+                : `<th onclick="sortNp('category')">Category ↕</th>`;
             document.getElementById('npThead').innerHTML = `<tr>
                 <th onclick="sortNp('product')">Product ↕</th>
-                <th onclick="sortNp('category')">Category ↕</th>
+                ${secondCol}
                 ${vis.map(c => `<th onclick="sortNp('${c.key}')" style="text-align:right;">${c.label} ↕</th>`).join('')}
             </tr>`;
         }
 
         function buildNpTable() {
             const fmt = n => Number(n || 0).toLocaleString();
-            const q = _npFilter.toLowerCase();
-            let rows = newProductsData.filter(r =>
-                !q || r.product.toLowerCase().includes(q) || (r.category || '').toLowerCase().includes(q)
-            );
-            rows = [...rows].sort((a, b) => {
-                const va = a[_npSortCol] ?? 0, vb = b[_npSortCol] ?? 0;
-                if (typeof va === 'string') return _npSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
-                return _npSortAsc ? va - vb : vb - va;
-            });
+            const product = document.getElementById('npProductFilter')?.value || '';
+            const color   = document.getElementById('npColorFilter')?.value   || '';
+            buildNpHead();
             const vis = NP_COLS.filter(c => c.visible);
             const tbody = document.getElementById('tbodyNp');
-            if (!rows.length) {
-                tbody.innerHTML = `<tr><td colspan="${2 + vis.length}" style="text-align:center;padding:30px;color:var(--text-muted);">No new products data available.</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = rows.map(r => {
-                const valCells = vis.map(c => {
-                    const v = r[c.key] || 0;
-                    if (c.bar) {
-                        const max = Math.max(...newProductsData.map(d => d[c.key] || 0), 1);
-                        const pct = Math.min(100, Math.round((v / max) * 100));
-                        return `<td style="text-align:right;padding:10px 14px;">
-                            <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
-                                <span style="font-weight:600;color:${c.color};">${fmt(v)}</span>
-                                <div style="width:40px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
-                                    <div style="width:${pct}%;height:100%;background:${c.color};border-radius:3px;"></div>
-                                </div>
-                            </div></td>`;
-                    }
-                    return `<td style="text-align:right;padding:10px 14px;font-weight:${c.key==='total_sales'?'700':'500'};color:${c.color};">${fmt(v)}</td>`;
+
+            if (product) {
+                // Color breakdown mode
+                let colorRows = (npColorData[product] || []).slice();
+                if (color) colorRows = colorRows.filter(r => r.color === color);
+                colorRows.sort((a, b) => {
+                    const va = a[_npSortCol] ?? 0, vb = b[_npSortCol] ?? 0;
+                    if (typeof va === 'string') return _npSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+                    return _npSortAsc ? va - vb : vb - va;
+                });
+                if (!colorRows.length) {
+                    tbody.innerHTML = `<tr><td colspan="${2 + vis.length}" style="text-align:center;padding:30px;color:var(--text-muted);">No color data for this product.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = colorRows.map(r => {
+                    const valCells = vis.map(c => {
+                        const v = r[c.key] || 0;
+                        if (c.bar) {
+                            const max = Math.max(...colorRows.map(d => d[c.key] || 0), 1);
+                            const pct = Math.min(100, Math.round((v / max) * 100));
+                            return `<td style="text-align:right;padding:10px 14px;">
+                                <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+                                    <span style="font-weight:600;color:${c.color};">${fmt(v)}</span>
+                                    <div style="width:40px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+                                        <div style="width:${pct}%;height:100%;background:${c.color};border-radius:3px;"></div>
+                                    </div>
+                                </div></td>`;
+                        }
+                        return `<td style="text-align:right;padding:10px 14px;font-weight:${c.key==='total_sales'?'700':'500'};color:${c.color};">${fmt(v)}</td>`;
+                    }).join('');
+                    return `<tr>
+                        <td style="padding:10px 14px;font-weight:600;">${product}</td>
+                        <td style="padding:10px 14px;font-weight:600;color:var(--accent-light);">${r.color || '—'}</td>
+                        ${valCells}
+                    </tr>`;
                 }).join('');
-                return `<tr>
-                    <td style="padding:10px 14px;font-weight:600;">${r.product}</td>
-                    <td style="padding:10px 14px;color:var(--text-muted);">${r.category || '—'}</td>
-                    ${valCells}
-                </tr>`;
-            }).join('');
+            } else {
+                // Product-level mode
+                const q = _npFilter.toLowerCase();
+                let rows = newProductsData.filter(r =>
+                    !q || r.product.toLowerCase().includes(q) || (r.category || '').toLowerCase().includes(q)
+                );
+                rows = [...rows].sort((a, b) => {
+                    const va = a[_npSortCol] ?? 0, vb = b[_npSortCol] ?? 0;
+                    if (typeof va === 'string') return _npSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+                    return _npSortAsc ? va - vb : vb - va;
+                });
+                if (!rows.length) {
+                    tbody.innerHTML = `<tr><td colspan="${2 + vis.length}" style="text-align:center;padding:30px;color:var(--text-muted);">No new products data available.</td></tr>`;
+                    return;
+                }
+                tbody.innerHTML = rows.map(r => {
+                    const valCells = vis.map(c => {
+                        const v = r[c.key] || 0;
+                        if (c.bar) {
+                            const max = Math.max(...newProductsData.map(d => d[c.key] || 0), 1);
+                            const pct = Math.min(100, Math.round((v / max) * 100));
+                            return `<td style="text-align:right;padding:10px 14px;">
+                                <div style="display:flex;align-items:center;gap:6px;justify-content:flex-end;">
+                                    <span style="font-weight:600;color:${c.color};">${fmt(v)}</span>
+                                    <div style="width:40px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;">
+                                        <div style="width:${pct}%;height:100%;background:${c.color};border-radius:3px;"></div>
+                                    </div>
+                                </div></td>`;
+                        }
+                        return `<td style="text-align:right;padding:10px 14px;font-weight:${c.key==='total_sales'?'700':'500'};color:${c.color};">${fmt(v)}</td>`;
+                    }).join('');
+                    return `<tr>
+                        <td style="padding:10px 14px;font-weight:600;">${r.product}</td>
+                        <td style="padding:10px 14px;color:var(--text-muted);">${r.category || '—'}</td>
+                        ${valCells}
+                    </tr>`;
+                }).join('');
+            }
         }
 
         function sortNp(col) {
@@ -2797,13 +3502,332 @@
 
         function exportNpExcel() {
             const vis = NP_COLS.filter(c => c.visible);
-            const headers = ['Product', 'Category', ...vis.map(c => c.label)];
-            const rows = [headers, ...newProductsData.map(r => [
-                r.product, r.category, ...vis.map(c => r[c.key] || 0)
-            ])];
+            const product = document.getElementById('npProductFilter')?.value || '';
+            const color   = document.getElementById('npColorFilter')?.value   || '';
+            let dataRows, headers, sheetName, fileName;
+            if (product) {
+                let colorRows = (npColorData[product] || []).slice();
+                if (color) colorRows = colorRows.filter(r => r.color === color);
+                headers = ['Product', 'Color', ...vis.map(c => c.label)];
+                dataRows = colorRows.map(r => [product, r.color, ...vis.map(c => r[c.key] || 0)]);
+                sheetName = 'Color Breakdown';
+                fileName = `${product.replace(/\s+/g,'_')}_colors.xlsx`;
+            } else {
+                headers = ['Product', 'Category', ...vis.map(c => c.label)];
+                dataRows = newProductsData.map(r => [r.product, r.category, ...vis.map(c => r[c.key] || 0)]);
+                sheetName = 'New Products';
+                fileName = 'new_products_pipeline.xlsx';
+            }
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'New Products');
-            XLSX.writeFile(wb, 'new_products_pipeline.xlsx');
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([headers, ...dataRows]), sheetName);
+            XLSX.writeFile(wb, fileName);
+        }
+
+        // ── PRODUCTS VS STOCKS ────────────────────────────────────────────────────────
+        let _pvsChart1 = null, _pvsChart2 = null, _pvsChart3 = null, _pvsChart4 = null;
+        let _pvsSortCol = 'total_sales', _pvsSortAsc = false;
+        let _pvsRows = [];
+        let _pvsSalesStockType = 'bar';
+
+        function _pvsGetFilters() {
+            return {
+                cat:   document.getElementById('pvsCatFilter')?.value   || '',
+                bt:    document.getElementById('pvsBtFilter')?.value    || '',
+                color: document.getElementById('pvsColorFilter')?.value || '',
+            };
+        }
+
+        function _pvsAgg() {
+            const { cat, bt, color } = _pvsGetFilters();
+            const rows = fullData.filter(r =>
+                (!cat   || r['Category'] === cat)  &&
+                (!bt    || r['Bag Type'] === bt)   &&
+                (!color || r['Color']    === color)
+            );
+            const map = {};
+            rows.forEach(r => {
+                const key = r['Bag Type'] || '—';
+                if (!map[key]) map[key] = {
+                    bag_type: key,
+                    category: r['Category'] || '—',
+                    total_sales: 0, total_stock: 0, total_dispatch: 0,
+                    warehouse: 0, marketing: 0, stitching_wip: 0,
+                    cut_in_store: 0, finishing_wip: 0,
+                };
+                const g = map[key];
+                g.total_sales    += (+r['Total Sales']           || 0);
+                g.total_stock    += (+r['Total Stock']            || 0);
+                g.total_dispatch += (+r['Total Dispatch']         || 0);
+                g.warehouse      += (+r['Total Warehouse Stock']  || 0);
+                g.marketing      += (+r['Total Marketing']        || 0);
+                g.stitching_wip  += (+r['Stitching WIP']          || 0);
+                g.cut_in_store   += (+r['Bags in cut store']      || 0);
+                g.finishing_wip  += (+r['WIP to finishing']       || 0);
+            });
+            const result = Object.values(map);
+            result.forEach(r => {
+                r.coverage = r.total_sales > 0 ? +(r.total_stock / r.total_sales).toFixed(2) : 0;
+            });
+            return result;
+        }
+
+        function _pvsStatus(coverage) {
+            if (coverage >= 1.5) return { label: 'Overstocked', color: '#10b981', bg: 'rgba(16,185,129,0.15)' };
+            if (coverage >= 0.8) return { label: 'Balanced',    color: '#38bdf8', bg: 'rgba(56,189,248,0.15)' };
+            if (coverage >= 0.3) return { label: 'Low Stock',   color: '#f59e0b', bg: 'rgba(245,158,11,0.15)'  };
+            return                      { label: 'Critical',    color: '#ef4444', bg: 'rgba(239,68,68,0.15)'   };
+        }
+
+        function renderPvs() {
+            _pvsRows = _pvsAgg();
+            _pvsKpis(_pvsRows);
+            _pvsSalesStockChart(_pvsRows);
+            _pvsCoverageChart(_pvsRows);
+            _pvsDispatchChart(_pvsRows);
+            _pvsWarehouseChart(_pvsRows);
+            _pvsRenderTable(_pvsRows);
+        }
+
+        function _pvsKpis(rows) {
+            const fmt = n => Number(n || 0).toLocaleString();
+            const totalSales    = rows.reduce((s, r) => s + r.total_sales,    0);
+            const totalStock    = rows.reduce((s, r) => s + r.total_stock,    0);
+            const totalDispatch = rows.reduce((s, r) => s + r.total_dispatch, 0);
+            const totalWh       = rows.reduce((s, r) => s + r.warehouse,      0);
+            const overallCov    = totalSales > 0 ? (totalStock / totalSales).toFixed(2) : '—';
+            const best          = rows.reduce((a, b) => b.total_sales > (a?.total_sales || 0) ? b : a, null);
+            const mostStocked   = rows.reduce((a, b) => b.total_stock > (a?.total_stock || 0) ? b : a, null);
+            const lowStock      = rows.filter(r => r.coverage > 0 && r.coverage < 0.8).length;
+            const critical      = rows.filter(r => r.coverage > 0 && r.coverage < 0.3).length;
+            const overstocked   = rows.filter(r => r.coverage >= 1.5).length;
+            document.getElementById('pvsKpis').innerHTML = `
+                <div class="kpi-card" style="--card-color:#e879f9;">
+                    <div class="kpi-label">Total Sales</div>
+                    <div class="kpi-value" style="color:#e879f9;">${fmt(totalSales)}</div>
+                    <div class="kpi-trend">${rows.length} bag types</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#10b981;">
+                    <div class="kpi-label">Total Stock</div>
+                    <div class="kpi-value" style="color:#10b981;">${fmt(totalStock)}</div>
+                    <div class="kpi-trend">Warehouse: ${fmt(totalWh)}</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#38bdf8;">
+                    <div class="kpi-label">Total Dispatch</div>
+                    <div class="kpi-value" style="color:#38bdf8;">${fmt(totalDispatch)}</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#f97316;">
+                    <div class="kpi-label">Overall Coverage</div>
+                    <div class="kpi-value" style="color:#f97316;">${overallCov}×</div>
+                    <div class="kpi-trend">Stock ÷ Sales ratio</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#a78bfa;">
+                    <div class="kpi-label">Best Selling Bag Type</div>
+                    <div class="kpi-value" style="color:#a78bfa;font-size:clamp(0.9rem,2vw,1.3rem);line-height:1.2;">${best?.bag_type || '—'}</div>
+                    <div class="kpi-trend">${fmt(best?.total_sales)} units</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#6366f1;">
+                    <div class="kpi-label">Most Stocked Bag Type</div>
+                    <div class="kpi-value" style="color:#6366f1;font-size:clamp(0.9rem,2vw,1.3rem);line-height:1.2;">${mostStocked?.bag_type || '—'}</div>
+                    <div class="kpi-trend">${fmt(mostStocked?.total_stock)} units</div>
+                </div>
+                <div class="kpi-card" style="--card-color:#ef4444;">
+                    <div class="kpi-label">Stock Alerts</div>
+                    <div class="kpi-value" style="color:#ef4444;">${lowStock}</div>
+                    <div class="kpi-trend">${critical} critical &nbsp;·&nbsp; ${overstocked} overstocked</div>
+                </div>
+            `;
+        }
+
+        function _pvsSalesStockChart(rows) {
+            const top = [...rows].sort((a, b) => b.total_sales - a.total_sales).slice(0, 15);
+            const labels = top.map(r => r.bag_type);
+            if (_pvsChart1) { _pvsChart1.destroy(); _pvsChart1 = null; }
+            const ctx = document.getElementById('chartPvsSalesStock')?.getContext('2d');
+            if (!ctx) return;
+            const isH = _pvsSalesStockType === 'horizontal';
+            _pvsChart1 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Sales',       data: top.map(r => r.total_sales),  backgroundColor: 'rgba(232,121,249,0.82)', borderColor: '#e879f9', borderWidth: 1 },
+                        { label: 'Total Stock', data: top.map(r => r.total_stock),  backgroundColor: 'rgba(16,185,129,0.82)',  borderColor: '#10b981', borderWidth: 1 },
+                    ]
+                },
+                options: {
+                    indexAxis: isH ? 'y' : 'x',
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+                    scales: {
+                        x: { ticks: { color: '#64748b', font: { size: 10 }, maxRotation: isH ? 0 : 35 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                        y: { ticks: { color: '#64748b', font: { size: 10 } },                             grid: { color: 'rgba(255,255,255,0.06)' } },
+                    }
+                }
+            });
+        }
+
+        function _pvsCoverageChart(rows) {
+            const top = [...rows].sort((a, b) => b.total_sales - a.total_sales).slice(0, 15);
+            const labels = top.map(r => r.bag_type);
+            const bgColors = top.map(r => _pvsStatus(r.coverage).color + 'cc');
+            if (_pvsChart2) { _pvsChart2.destroy(); _pvsChart2 = null; }
+            const ctx = document.getElementById('chartPvsCoverage')?.getContext('2d');
+            if (!ctx) return;
+            _pvsChart2 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: 'Coverage (Stock÷Sales)',
+                            data: top.map(r => r.coverage),
+                            backgroundColor: bgColors,
+                            borderColor: top.map(r => _pvsStatus(r.coverage).color),
+                            borderWidth: 1,
+                        },
+                        {
+                            label: '1.0× Target',
+                            data: top.map(() => 1),
+                            type: 'line',
+                            borderColor: '#f97316',
+                            borderWidth: 2,
+                            borderDash: [5, 4],
+                            pointRadius: 0,
+                            fill: false,
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 }, filter: i => i.text !== '1.0× Target' || true } } },
+                    scales: {
+                        x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                        y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                    }
+                }
+            });
+        }
+
+        function _pvsDispatchChart(rows) {
+            const top = [...rows].sort((a, b) => b.total_sales - a.total_sales).slice(0, 12);
+            const labels = top.map(r => r.bag_type);
+            if (_pvsChart3) { _pvsChart3.destroy(); _pvsChart3 = null; }
+            const ctx = document.getElementById('chartPvsDispatch')?.getContext('2d');
+            if (!ctx) return;
+            _pvsChart3 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Sales',    data: top.map(r => r.total_sales),    backgroundColor: 'rgba(232,121,249,0.82)', borderColor: '#e879f9', borderWidth: 1 },
+                        { label: 'Dispatch', data: top.map(r => r.total_dispatch), backgroundColor: 'rgba(56,189,248,0.82)',  borderColor: '#38bdf8', borderWidth: 1 },
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+                    scales: {
+                        x: { ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 35 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                        y: { ticks: { color: '#64748b', font: { size: 10 } },                   grid: { color: 'rgba(255,255,255,0.06)' } },
+                    }
+                }
+            });
+        }
+
+        function _pvsWarehouseChart(rows) {
+            const top = [...rows].sort((a, b) => b.total_stock - a.total_stock).slice(0, 12);
+            const labels = top.map(r => r.bag_type);
+            if (_pvsChart4) { _pvsChart4.destroy(); _pvsChart4 = null; }
+            const ctx = document.getElementById('chartPvsWarehouse')?.getContext('2d');
+            if (!ctx) return;
+            _pvsChart4 = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels,
+                    datasets: [
+                        { label: 'Warehouse Stock', data: top.map(r => r.warehouse),    backgroundColor: 'rgba(99,102,241,0.82)',  borderColor: '#6366f1', borderWidth: 1 },
+                        { label: 'Total Stock',      data: top.map(r => r.total_stock), backgroundColor: 'rgba(16,185,129,0.45)',  borderColor: '#10b981', borderWidth: 1 },
+                    ]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#94a3b8', font: { size: 11 } } } },
+                    scales: {
+                        x: { ticks: { color: '#64748b', font: { size: 10 }, maxRotation: 35 }, grid: { color: 'rgba(255,255,255,0.06)' } },
+                        y: { ticks: { color: '#64748b', font: { size: 10 } },                   grid: { color: 'rgba(255,255,255,0.06)' } },
+                    }
+                }
+            });
+        }
+
+        function setPvsChartType(type, btn) {
+            _pvsSalesStockType = type;
+            document.querySelectorAll('[id^="pvsChartBtn"]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            _pvsSalesStockChart(_pvsRows);
+        }
+
+        function sortPvs(col) {
+            if (_pvsSortCol === col) _pvsSortAsc = !_pvsSortAsc;
+            else { _pvsSortCol = col; _pvsSortAsc = false; }
+            _pvsRenderTable(_pvsRows);
+        }
+
+        function renderPvsTableFiltered(q) {
+            _pvsRenderTable(_pvsRows, q.toLowerCase());
+        }
+
+        function _pvsRenderTable(rows, q = '') {
+            const fmt = n => Number(n || 0).toLocaleString();
+            let sorted = [...rows];
+            if (q) sorted = sorted.filter(r =>
+                r.bag_type.toLowerCase().includes(q) || r.category.toLowerCase().includes(q)
+            );
+            sorted.sort((a, b) => {
+                const va = a[_pvsSortCol] ?? 0, vb = b[_pvsSortCol] ?? 0;
+                if (typeof va === 'string') return _pvsSortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+                return _pvsSortAsc ? va - vb : vb - va;
+            });
+            const tbody = document.getElementById('tbodyPvs');
+            if (!sorted.length) {
+                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;padding:30px;color:var(--text-muted);">No data available.</td></tr>`;
+                return;
+            }
+            const maxSales = Math.max(...sorted.map(r => r.total_sales), 1);
+            tbody.innerHTML = sorted.map(r => {
+                const st  = _pvsStatus(r.coverage);
+                const pct = Math.min(100, Math.round((r.total_sales / maxSales) * 100));
+                return `<tr>
+                    <td style="padding:10px 14px;">
+                        <div style="font-weight:700;">${r.bag_type}</div>
+                        <div style="height:4px;width:${pct}%;background:#e879f9;border-radius:2px;margin-top:4px;opacity:0.7;"></div>
+                    </td>
+                    <td style="padding:10px 14px;color:var(--text-muted);">${r.category}</td>
+                    <td style="text-align:right;padding:10px 14px;font-weight:700;color:#e879f9;">${fmt(r.total_sales)}</td>
+                    <td style="text-align:right;padding:10px 14px;font-weight:600;color:#10b981;">${fmt(r.total_stock)}</td>
+                    <td style="text-align:right;padding:10px 14px;color:#38bdf8;">${fmt(r.total_dispatch)}</td>
+                    <td style="text-align:right;padding:10px 14px;color:#6366f1;">${fmt(r.warehouse)}</td>
+                    <td style="text-align:right;padding:10px 14px;color:#06b6d4;">${fmt(r.marketing)}</td>
+                    <td style="text-align:right;padding:10px 14px;font-weight:700;color:${st.color};">${r.coverage}×</td>
+                    <td style="padding:10px 14px;">
+                        <span style="padding:3px 10px;border-radius:12px;font-size:0.72rem;font-weight:700;
+                            color:${st.color};background:${st.bg};">${st.label}</span>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function exportPvsExcel() {
+            const headers = ['Bag Type','Category','Sales','Total Stock','Dispatch','Warehouse','Marketing','Coverage','Status'];
+            const data = _pvsRows.map(r => {
+                const st = _pvsStatus(r.coverage);
+                return [r.bag_type, r.category, r.total_sales, r.total_stock, r.total_dispatch,
+                        r.warehouse, r.marketing, r.coverage + '×', st.label];
+            });
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([headers, ...data]), 'Products vs Stocks');
+            XLSX.writeFile(wb, 'products_vs_stocks.xlsx');
         }
 
         // ── SALES VS SHOP STOCK ALIGNMENT ────────────────────────────────────────────

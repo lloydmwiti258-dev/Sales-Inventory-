@@ -155,6 +155,30 @@ def api_integrated_dashboard():
             })
         np_data.sort(key=lambda x: x['total_sales'], reverse=True)
 
+    # Per-product color breakdown for cascading dropdown
+    np_color_data = {}
+    if not np_df.empty and 'Color' in np_df.columns:
+        for prod, prod_grp in np_df.groupby('Bag Type'):
+            color_rows = []
+            for color, color_grp in prod_grp.groupby('Color'):
+                if not str(color).strip():
+                    continue
+                color_rows.append({
+                    'color':          str(color),
+                    'total_sales':    _np_col(color_grp, 'Total Sales'),
+                    'total_stock':    _np_col(color_grp, 'Total Stock'),
+                    'total_dispatch': _np_col(color_grp, 'Total Dispatch'),
+                    'cut_in_store':   _np_col(color_grp, 'Bags in cut store'),
+                    'stitching_wip':  _np_col(color_grp, 'Stitching WIP'),
+                    'finishing_wip':  _np_col(color_grp, 'WIP to finishing'),
+                    'warehouse':      _np_col(color_grp, 'Total Warehouse Stock'),
+                    'shop_stores':    _np_col(color_grp, 'Total Stock'),
+                    'marketing':      _np_col(color_grp, 'Total Marketing'),
+                    'revenue':        0,
+                })
+            color_rows.sort(key=lambda x: x['total_sales'], reverse=True)
+            np_color_data[prod] = color_rows
+
     # Best product / category / shop / region for new products
     np_shop_analysis = data_dict.get('new_products_shop_analysis', [])
 
@@ -195,6 +219,7 @@ def api_integrated_dashboard():
         'stitched_data':         stitched_data,
         'new_products_summary':       new_products_summary,
         'new_products_data':          np_data,
+        'new_products_color_data':    np_color_data,
         'new_products_shop_detail':   data_dict.get('new_products_shop_detail', []),
         'refreshed':             _cache.get('refreshed'),
         'filters': {
